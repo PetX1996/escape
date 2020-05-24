@@ -1,0 +1,626 @@
+#include "ui_mp/macro_global.inc"
+
+#undef C_HIGHLIGHT
+#define C_HIGHLIGHT		1 0 0 0.30
+
+#undef C_SELECTED
+#define C_SELECTED		1 0 0 0.75
+
+#undef C_TITLE
+#define C_TITLE			1 0 0 1
+
+#undef C_BTN_ON
+#define C_BTN_ON		1 0 0 1
+
+
+#define SPACE 8
+#define SMALLSPACE (SPACE*0.5)
+#define BIGSPACE (SPACE*2)
+
+
+#define PREVIEW_CLASS DvarInt( "CLASS_cSel" )
+#define SELECTED_CLASS DvarInt( "CLASS_cPrev" )
+	
+#define POPUP_TYPE DvarString( "CLASS_popupT" )
+#define POPUP_TYPEINDEX DvarString( "CLASS_popupTI" )
+#define POPUP_STARTINDEX DvarString( "CLASS_popupSI" )
+#define POPUP_LENGTH DvarString( "CLASS_popupL" )
+#define POPUP_PAGE DvarInt( "CLASS_page" )
+#define POPUP_VISCONTENT DvarInt( "CLASS_visCon" ) && DvarInt( "CLASS_visPop" ) == 1
+	
+#define STAT_SPAWNCLASS 3299
+#define STAT_SPAWNCLASS_S "3299"
+#define STAT_STARTINDEX 3000
+
+// startStat + (ClassIndex * ClassCount) + typeIndex
+#define STAT_FIGURE STAT_STARTINDEX + (PREVIEW_CLASS*5)
+#define STAT_WEAPON STAT_STARTINDEX + (PREVIEW_CLASS*5) + 1
+#define STAT_FIRSTPERK STAT_STARTINDEX + (PREVIEW_CLASS*5) + 2
+#define STAT_SECONDPERK STAT_STARTINDEX + (PREVIEW_CLASS*5) + 3
+#define STAT_THIRDPERK STAT_STARTINDEX + (PREVIEW_CLASS*5) + 4
+#define STAT_CURTYPE STAT_STARTINDEX + (PREVIEW_CLASS*5) + int(POPUP_TYPEINDEX)
+
+#define CURRENT_FIGURE stat( STAT_FIGURE )
+#define CURRENT_WEAPON stat( STAT_WEAPON )
+#define CURRENT_FIRSTPERK stat( STAT_FIRSTPERK )
+#define CURRENT_SECONDPERK stat( STAT_SECONDPERK )
+#define CURRENT_THIRDPERK stat( STAT_THIRDPERK )
+#define CURRENT_ITEM stat( STAT_CURTYPE )
+
+#define TABLE_FILE "mp/MonsterClassTable.csv"
+
+		#define ISFIGURE( Ttype ) \
+			( Ttype == "Figure" )
+		
+		#define ISWEAPON( Ttype ) \
+			( Ttype == "Weapon" )
+			
+		#define ISFIRSTPERK( Ttype ) \
+			( Ttype == "FirstPerk" )
+			
+		#define ISSECONDPERK( Ttype ) \
+			( Ttype == "SecondPerk" )
+
+		#define ISTHIRDPERK( Ttype ) \
+			( Ttype == "ThirdPerk" )
+			
+		// je dostupný stat?
+		#define ISSTATAVAILABLE( statIndex ) \
+			( stat(int(TableLookUp( "mp/FreeStatsTable.csv", 0, statIndex, 1 ))) == int(TableLookUp( "mp/FreeStatsTable.csv", 0, statIndex, 2 )) )
+		
+		// dostupné po kúpe za XP
+		#define ISAVAILABLEFULL( Tstat, Tperm, Trank ) \
+			( ISAVAILABLEPERM( Tstat, Tperm, Trank ) )
+		
+		// je dostupné po kúpe za XP/iný spôsob
+		#define ISAVAILABLEPERM( Tstat, Tperm, Trank ) \
+			( Tperm == "1" || (Tperm == "2" && ISSTATAVAILABLE(Tstat) == 1) || (Tperm == "3" && ISAVAILABLERANK(Trank)) )
+		
+		// je dostupné na kúpu za XP?
+		#define ISAVAILABLETOXPBUY( Tstat, Tperm, Tprice ) \
+			( Tperm == "2" && Tprice != "0" && ISSTATAVAILABLE(Tstat) == 0 )
+		
+		// je dostupný na RANK výber?
+		#define ISAVAILABLERANKBUY( Tperm ) \
+			( Tperm == "3" )
+		
+		// je dostatoèný poèet LVL?
+		#define ISAVAILABLERANK( Trank ) \
+			( stat(2350) >= Trank )
+		
+		// je dostatoèný poèet XP?
+		#define ISAVAILABLEPRICE( Tprice ) \
+			( stat(2301) >= Tprice )
+		
+		// je už item zakúpený?
+		#define ISALREADYSELECTED( lineIndex ) \
+			( CURRENT_ITEM == int( lineIndex ) ) == 0
+
+
+		#define VIS_POPUP DvarInt( "CLASS_visPop" ) == 1
+		
+		#define POPUP_LIST_ITEM_COUNT 15
+		
+		#define POPUP_SPACE 4
+		
+		#define POPUP_W 500
+		#define POPUP_H 300
+		#define POPUP_X (CLASS_X+((CLASS_W-POPUP_W)*0.5))
+		#define POPUP_Y (CLASS_Y+((CLASS_H-POPUP_H)*0.5))
+		
+		#define POPUP_TITLE_X (POPUP_X+POPUP_SPACE)
+		#define POPUP_TITLE_Y (POPUP_Y+POPUP_SPACE)
+		#define POPUP_TITLE_W (POPUP_W-(POPUP_SPACE*2))
+		#define POPUP_TITLE_H 26
+		
+		#define POPUP_LIST_X (POPUP_X+POPUP_SPACE)
+		#define POPUP_LIST_Y (POPUP_TITLE_Y+POPUP_TITLE_H+POPUP_SPACE)
+		#define POPUP_LIST_W 140
+		#define POPUP_LIST_H (POPUP_H-POPUP_TITLE_H-(POPUP_SPACE*3))
+		
+		#define POPUP_ITEM_TITLE_X (POPUP_X+POPUP_LIST_W+(POPUP_SPACE*2))
+		#define POPUP_ITEM_TITLE_Y (POPUP_TITLE_Y+POPUP_TITLE_H+POPUP_SPACE)
+		#define POPUP_ITEM_TITLE_W (POPUP_W-POPUP_LIST_W-(POPUP_SPACE*3))
+		#define POPUP_ITEM_TITLE_H 20
+		
+		#define POPUP_ITEM_X POPUP_ITEM_TITLE_X
+		#define POPUP_ITEM_Y (POPUP_ITEM_TITLE_Y+POPUP_ITEM_TITLE_H+POPUP_SPACE)
+		#define POPUP_ITEM_W (POPUP_W-POPUP_LIST_W-(POPUP_SPACE*3))
+		#define POPUP_ITEM_H (POPUP_H-POPUP_TITLE_H-POPUP_ITEM_TITLE_H-(POPUP_SPACE*4))
+		
+		#define POPUP_LIST_ITEM_H (POPUP_LIST_H / (POPUP_LIST_ITEM_COUNT+1))		
+			
+{
+	menuDef
+	{
+		name			"class_opfor"
+		focuscolor		COLOR_FOCUSED
+		style			WINDOW_STYLE_FILLED
+		//soundloop 		"music_connect_mp"
+		blurworld		1.5
+		//backcolor		1 1 1 1
+		//background		"menu_e_b"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN 0
+		
+		onOpen
+		{
+			scriptMenuResponse "CLASS_open";
+			execNow "statGetInDvar "STAT_SPAWNCLASS_S" ui_primary_attachment_slot";
+			execNow "setFromDvar CLASS_cSel ui_primary_attachment_slot; setFromDvar CLASS_cPrev ui_primary_attachment_slot";
+			execNow "set CLASS_bSel 1";
+			//execNow "set CLASS_spamT sawd"; //TEST
+		}
+		
+		onEsc
+		{
+			play "mouse_click";
+			scriptMenuResponse "CLASS_esc";
+		}
+		onClose
+		{
+			scriptMenuResponse "CLASS_close";
+		}
+		
+		P_BLACKSCREEN( 1 )
+		
+		#define CLASS_TAB_TEAM_X 0
+		#define CLASS_TAB_TEAM_Y 0
+		#define CLASS_TAB_TEAM_W 640
+		#define CLASS_TAB_TEAM_H 45
+		
+		#define CLASS_TAB_CLASS_X 0
+		#define CLASS_TAB_CLASS_Y (CLASS_TAB_TEAM_Y+CLASS_TAB_TEAM_H)
+		#define CLASS_TAB_CLASS_W 640
+		#define CLASS_TAB_CLASS_H 22		
+		
+		#define CLASS_BOTTOM_W 640
+		#define CLASS_BOTTOM_H 18
+		#define CLASS_BOTTOM_X 0
+		#define CLASS_BOTTOM_Y (480-CLASS_BOTTOM_H)
+		
+		#define CLASS_X 0
+		#define CLASS_Y (CLASS_TAB_TEAM_H+CLASS_TAB_CLASS_H)
+		#define CLASS_W 640
+		#define CLASS_H (480-(CLASS_TAB_TEAM_H+CLASS_TAB_CLASS_H+CLASS_BOTTOM_H))
+		
+		
+		#include "ui_mp/macro_tab_clean.inc"
+		#define TAB_X CLASS_TAB_TEAM_X
+		#define TAB_Y CLASS_TAB_TEAM_Y
+		#define TAB_W CLASS_TAB_TEAM_W
+		#define TAB_H CLASS_TAB_TEAM_H
+		#define TAB_ORIENT TAB_ORIENT_HORIZONTAL
+		#define TAB_BORDER TAB_BORDER_BOTTOM
+		#define TAB_BUTTONS 2
+		#define TAB_SEPARATORS 0
+		#define TAB_SELECTED_DVAR "CLASS_bSel"
+		#define TAB_VIS 1
+
+		#include "ui_mp/macro_tab_process.inc"
+		TAB_BUTTON( 0, "0", "HUMANS", FONTSCALE_40, scriptMenuResponse "c_open_allies";, ;, ;, 1 )
+		TAB_BUTTON( 1, "1", "MONSTERS", FONTSCALE_40, scriptMenuResponse "c_open_axis";, ;, ;, 1 )
+		
+		// click pointer
+		itemDef
+		{
+			rect			0 CLASS_TAB_TEAM_Y (CLASS_TAB_TEAM_W*0.5) CLASS_TAB_TEAM_H
+			exp				rect X( CLASS_TAB_TEAM_X + ((CLASS_TAB_TEAM_W*0.5)*DvarInt( "CLASS_bSel" )) )
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_TRANSPARENT
+			visible			1
+		}
+		
+		#include "ui_mp/macro_tab_clean.inc"
+		#define TAB_X CLASS_TAB_CLASS_X
+		#define TAB_Y CLASS_TAB_CLASS_Y
+		#define TAB_W CLASS_TAB_CLASS_W
+		#define TAB_H CLASS_TAB_CLASS_H
+		#define TAB_ORIENT TAB_ORIENT_HORIZONTAL
+		#define TAB_BORDER TAB_BORDER_BOTTOM
+		#define TAB_BUTTONS 5
+		#define TAB_SEPARATORS 0
+		#define TAB_SELECTED_DVAR "CLASS_cPrev"
+		#define TAB_VIS 1
+		
+		#include "ui_mp/macro_tab_process.inc"
+		TAB_BUTTON( 0, "0", "A", FONTSCALE_18, execNow "set CLASS_cSel 0"; scriptMenuResponse "CLASS_cSel_0";, execNow "set CLASS_cSel 0";, execNow "setFromDvar CLASS_cSel CLASS_cPrev";, 1 )
+		TAB_BUTTON( 1, "1", "B", FONTSCALE_18, execNow "set CLASS_cSel 1"; scriptMenuResponse "CLASS_cSel_1";, execNow "set CLASS_cSel 1";, execNow "setFromDvar CLASS_cSel CLASS_cPrev";, 1 )
+		TAB_BUTTON( 2, "2", "C", FONTSCALE_18, execNow "set CLASS_cSel 2"; scriptMenuResponse "CLASS_cSel_2";, execNow "set CLASS_cSel 2";, execNow "setFromDvar CLASS_cSel CLASS_cPrev";, 1 )
+		TAB_BUTTON( 3, "3", "D", FONTSCALE_18, execNow "set CLASS_cSel 3"; scriptMenuResponse "CLASS_cSel_3";, execNow "set CLASS_cSel 3";, execNow "setFromDvar CLASS_cSel CLASS_cPrev";, 1 )
+		TAB_BUTTON( 4, "4", "E", FONTSCALE_18, execNow "set CLASS_cSel 4"; scriptMenuResponse "CLASS_cSel_4";, execNow "set CLASS_cSel 4";, execNow "setFromDvar CLASS_cSel CLASS_cPrev";, 1 )
+		
+		
+		P_BACKGROUND( CLASS_BOTTOM_X, CLASS_BOTTOM_Y, CLASS_BOTTOM_W, CLASS_BOTTOM_H, 1 )
+		P_BACKGROUND( CLASS_BOTTOM_X, CLASS_BOTTOM_Y, CLASS_BOTTOM_W, CLASS_BOTTOM_H, 1 )
+		T_DYNAMIC( (CLASS_BOTTOM_X+4), CLASS_BOTTOM_Y, CLASS_BOTTOM_W, CLASS_BOTTOM_H, "XP: "+stat( 2301 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_LEFT, 1 )
+		T_DYNAMIC( CLASS_BOTTOM_X, CLASS_BOTTOM_Y, (CLASS_BOTTOM_W-4), CLASS_BOTTOM_H, "Rank: "+(stat( 2350 )+1), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_RIGHT, 1 )
+		
+		
+		#define CLASS_WINDOWS_SPACE 32
+		#define CLASS_WINDOWS_TITLE 16
+		#define CLASS_WINDOWS_M_SPACE 4
+		
+		#define CLASS_FIGURE_W 220
+		#define CLASS_FIGURE_H 330
+		
+		#define CLASS_FIRSTPERK_W 100
+		#define CLASS_FIRSTPERK_H 110
+		
+		#define CLASS_SECONDPERK_W 100
+		#define CLASS_SECONDPERK_H 110
+		
+		#define CLASS_WEAPON_W 100
+		#define CLASS_WEAPON_H 110
+		
+		#define CLASS_THIRDPERK_W 100
+		#define CLASS_THIRDPERK_H 110
+		
+		#define CLASS_FIGURE_X (CLASS_X+((CLASS_W-(CLASS_FIGURE_W+CLASS_WINDOWS_SPACE+CLASS_FIRSTPERK_W+CLASS_WINDOWS_SPACE+CLASS_SECONDPERK_W))*0.5))
+		#define CLASS_FIGURE_Y (CLASS_Y+((CLASS_H-CLASS_FIGURE_H)*0.5))
+
+		#define CLASS_FIRSTPERK_X (CLASS_FIGURE_X+CLASS_FIGURE_W+CLASS_WINDOWS_SPACE)
+		#define CLASS_FIRSTPERK_Y CLASS_FIGURE_Y
+		
+		#define CLASS_SECONDPERK_X (CLASS_FIRSTPERK_X+CLASS_FIRSTPERK_W+CLASS_WINDOWS_SPACE)
+		#define CLASS_SECONDPERK_Y CLASS_FIRSTPERK_Y
+		
+		#define CLASS_WEAPON_X CLASS_FIRSTPERK_X
+		#define CLASS_WEAPON_Y (CLASS_FIRSTPERK_Y+CLASS_FIRSTPERK_H+CLASS_WINDOWS_SPACE)
+		
+		#define CLASS_THIRDPERK_X (CLASS_WEAPON_X+CLASS_WEAPON_W+CLASS_WINDOWS_SPACE)
+		#define CLASS_THIRDPERK_Y CLASS_WEAPON_Y
+		
+		#define CLASS_SPAWN_X CLASS_WEAPON_X
+		#define CLASS_SPAWN_Y (CLASS_WEAPON_Y+CLASS_WEAPON_H+CLASS_WINDOWS_SPACE)
+		#define CLASS_SPAWN_W ((CLASS_THIRDPERK_X+CLASS_THIRDPERK_W)-CLASS_SPAWN_X)
+		#define CLASS_SPAWN_H ((CLASS_FIGURE_Y+CLASS_FIGURE_H)-CLASS_SPAWN_Y)
+		
+		P_BACKGROUND( CLASS_SPAWN_X, CLASS_SPAWN_Y, CLASS_SPAWN_W, CLASS_SPAWN_H, 1 )
+		P_BORDER( CLASS_SPAWN_X, CLASS_SPAWN_Y, CLASS_SPAWN_W, CLASS_SPAWN_H, when( stat(STAT_SPAWNCLASS) == PREVIEW_CLASS ) )
+		BTN_T_CENTER_STATIC( CLASS_SPAWN_X, CLASS_SPAWN_Y, CLASS_SPAWN_W, CLASS_SPAWN_H, "Set as spawn CLASS", FONTSCALE_20, scriptMenuResponse "CLASS_cSpawn";, ;, ;, 1 )
+		
+		
+		P_BACKGROUND( CLASS_FIGURE_X, CLASS_FIGURE_Y, CLASS_FIGURE_W, CLASS_FIGURE_H, 1 )
+		P_BACKGROUND( CLASS_FIGURE_X, CLASS_FIGURE_Y, CLASS_FIGURE_W, CLASS_WINDOWS_TITLE, 1 )
+		T_DYNAMIC( CLASS_FIGURE_X, CLASS_FIGURE_Y, CLASS_FIGURE_W, CLASS_WINDOWS_TITLE, TableLookUp( TABLE_FILE, 0, CURRENT_FIGURE, 3 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )		
+		
+		#define CLASS_FIGURE_INFO_H 35
+		#define CLASS_FIGURE_INFO_CORNER 4
+		#define CLASS_FIGURE_INFO_X (CLASS_FIGURE_X+CLASS_FIGURE_INFO_CORNER)
+		#define CLASS_FIGURE_INFO_Y (((CLASS_FIGURE_Y+CLASS_FIGURE_H)-CLASS_FIGURE_INFO_H)-CLASS_FIGURE_INFO_CORNER)
+		#define CLASS_FIGURE_INFO_W (CLASS_FIGURE_W-(CLASS_FIGURE_INFO_CORNER*2))
+		#define CLASS_FIGURE_INFO_PART_H (CLASS_FIGURE_INFO_H*0.33)
+		
+		#define CLASS_FIGURE_INFO_BAR_H 0.2
+		#define CLASS_FIGURE_INFO_BAR_W 0.85
+		T_DYNAMIC( CLASS_FIGURE_INFO_X, CLASS_FIGURE_INFO_Y, CLASS_FIGURE_INFO_W, CLASS_FIGURE_INFO_PART_H, TableLookUp( TABLE_FILE, 0, CURRENT_FIGURE, 15 ), FONTSCALE_12, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )				
+		
+		#define FIGURE_PROGRESS( y, title, progress ) \
+			itemDef \
+			{ \
+				rect			CLASS_FIGURE_INFO_X y (CLASS_FIGURE_INFO_W*(1-CLASS_FIGURE_INFO_BAR_W)) CLASS_FIGURE_INFO_PART_H 0 0 \
+				forecolor		C_TEXT \
+				style 			WINDOW_STYLE_EMPTY \
+				visible			1 \
+				text			title \
+				textscale		FONTSCALE_12 \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				decoration \
+			} \
+			itemDef \
+			{ \
+				rect			(CLASS_FIGURE_INFO_X+(CLASS_FIGURE_INFO_W*(1-CLASS_FIGURE_INFO_BAR_W))) (y+(CLASS_FIGURE_INFO_PART_H*((1-CLASS_FIGURE_INFO_BAR_H)*0.5))) (CLASS_FIGURE_INFO_W*CLASS_FIGURE_INFO_BAR_W) (CLASS_FIGURE_INFO_PART_H*CLASS_FIGURE_INFO_BAR_H) 0 0 \
+				backcolor		C_BACKGROUND \
+				style 			WINDOW_STYLE_FILLED \
+				visible			1 \
+			}		\
+			itemDef \
+			{ \
+				rect			(CLASS_FIGURE_INFO_X+(CLASS_FIGURE_INFO_W*(1-CLASS_FIGURE_INFO_BAR_W))) (y+(CLASS_FIGURE_INFO_PART_H*((1-CLASS_FIGURE_INFO_BAR_H)*0.5))) 0 (CLASS_FIGURE_INFO_PART_H*CLASS_FIGURE_INFO_BAR_H) 0 0 \
+				exp				rect W( CLASS_FIGURE_INFO_W*CLASS_FIGURE_INFO_BAR_W*progress ); \
+				backcolor		C_SELECTED \
+				style 			WINDOW_STYLE_FILLED \
+				visible			1 \
+			}
+			
+		FIGURE_PROGRESS( (CLASS_FIGURE_INFO_Y + (CLASS_FIGURE_INFO_PART_H*1)), "Health", (int( TableLookUp( TABLE_FILE, 0, CURRENT_FIGURE, 11 ) )/100) )
+		FIGURE_PROGRESS( (CLASS_FIGURE_INFO_Y + (CLASS_FIGURE_INFO_PART_H*2)), "Speed", (int( TableLookUp( TABLE_FILE, 0, CURRENT_FIGURE, 12 ) )/100) )
+		#define CLASS_FIGURE_MATERIAL_RECT (CLASS_FIGURE_X+CLASS_WINDOWS_M_SPACE) (CLASS_FIGURE_Y+CLASS_WINDOWS_TITLE+CLASS_WINDOWS_M_SPACE) (CLASS_FIGURE_W-(CLASS_WINDOWS_M_SPACE*2)) (CLASS_FIGURE_H-CLASS_WINDOWS_TITLE-CLASS_FIGURE_INFO_H-(CLASS_WINDOWS_M_SPACE*2)) 0 0		
+		
+		P_BACKGROUND( CLASS_FIRSTPERK_X, CLASS_FIRSTPERK_Y, CLASS_FIRSTPERK_W, CLASS_FIRSTPERK_H, 1 )
+		P_BACKGROUND( CLASS_FIRSTPERK_X, ((CLASS_FIRSTPERK_Y+CLASS_FIRSTPERK_H)-CLASS_WINDOWS_TITLE), CLASS_FIRSTPERK_W, CLASS_WINDOWS_TITLE, 1 )
+		T_DYNAMIC( CLASS_FIRSTPERK_X, ((CLASS_FIRSTPERK_Y+CLASS_FIRSTPERK_H)-CLASS_WINDOWS_TITLE), CLASS_FIRSTPERK_W, CLASS_WINDOWS_TITLE, TableLookUp( TABLE_FILE, 0, CURRENT_FIRSTPERK, 3 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )
+		#define CLASS_FIRSTPERK_MATERIAL_RECT (CLASS_FIRSTPERK_X+CLASS_WINDOWS_M_SPACE) (CLASS_FIRSTPERK_Y+CLASS_WINDOWS_M_SPACE) (CLASS_FIRSTPERK_W-(CLASS_WINDOWS_M_SPACE*2)) ((CLASS_FIRSTPERK_H-CLASS_WINDOWS_TITLE)-(CLASS_WINDOWS_M_SPACE*2)) 0 0
+		
+		P_BACKGROUND( CLASS_SECONDPERK_X, CLASS_SECONDPERK_Y, CLASS_SECONDPERK_W, CLASS_SECONDPERK_H, 1 )
+		P_BACKGROUND( CLASS_SECONDPERK_X, ((CLASS_SECONDPERK_Y+CLASS_SECONDPERK_H)-CLASS_WINDOWS_TITLE), CLASS_SECONDPERK_W, CLASS_WINDOWS_TITLE, 1 )
+		T_DYNAMIC( CLASS_SECONDPERK_X, ((CLASS_SECONDPERK_Y+CLASS_SECONDPERK_H)-CLASS_WINDOWS_TITLE), CLASS_SECONDPERK_W, CLASS_WINDOWS_TITLE, TableLookUp( TABLE_FILE, 0, CURRENT_SECONDPERK, 3 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )
+		#define CLASS_SECONDPERK_MATERIAL_RECT (CLASS_SECONDPERK_X+CLASS_WINDOWS_M_SPACE) (CLASS_SECONDPERK_Y+CLASS_WINDOWS_M_SPACE) (CLASS_SECONDPERK_W-(CLASS_WINDOWS_M_SPACE*2)) ((CLASS_SECONDPERK_H-CLASS_WINDOWS_TITLE)-(CLASS_WINDOWS_M_SPACE*2)) 0 0
+		
+		P_BACKGROUND( CLASS_WEAPON_X, CLASS_WEAPON_Y, CLASS_WEAPON_W, CLASS_WEAPON_H, 1 )
+		P_BACKGROUND( CLASS_WEAPON_X, ((CLASS_WEAPON_Y+CLASS_WEAPON_H)-CLASS_WINDOWS_TITLE), CLASS_WEAPON_W, CLASS_WINDOWS_TITLE, 1 )
+		T_DYNAMIC( CLASS_WEAPON_X, ((CLASS_WEAPON_Y+CLASS_WEAPON_H)-CLASS_WINDOWS_TITLE), CLASS_WEAPON_W, CLASS_WINDOWS_TITLE, TableLookUp( TABLE_FILE, 0, CURRENT_WEAPON, 3 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )
+		#define CLASS_WEAPON_MATERIAL_RECT (CLASS_WEAPON_X+CLASS_WINDOWS_M_SPACE) (CLASS_WEAPON_Y+CLASS_WINDOWS_M_SPACE) (CLASS_WEAPON_W-(CLASS_WINDOWS_M_SPACE*2)) ((CLASS_WEAPON_H-CLASS_WINDOWS_TITLE)-(CLASS_WINDOWS_M_SPACE*2)) 0 0
+		
+		P_BACKGROUND( CLASS_THIRDPERK_X, CLASS_THIRDPERK_Y, CLASS_THIRDPERK_W, CLASS_THIRDPERK_H, 1 )
+		P_BACKGROUND( CLASS_THIRDPERK_X, ((CLASS_THIRDPERK_Y+CLASS_THIRDPERK_H)-CLASS_WINDOWS_TITLE), CLASS_THIRDPERK_W, CLASS_WINDOWS_TITLE, 1 )
+		T_DYNAMIC( CLASS_THIRDPERK_X, ((CLASS_THIRDPERK_Y+CLASS_THIRDPERK_H)-CLASS_WINDOWS_TITLE), CLASS_THIRDPERK_W, CLASS_WINDOWS_TITLE, TableLookUp( TABLE_FILE, 0, CURRENT_THIRDPERK, 3 ), FONTSCALE_14, C_TEXT, ITEM_ALIGN_MIDDLE_CENTER, 1 )
+		#define CLASS_THIRDPERK_MATERIAL_RECT (CLASS_THIRDPERK_X+CLASS_WINDOWS_M_SPACE) (CLASS_THIRDPERK_Y+CLASS_WINDOWS_M_SPACE) (CLASS_THIRDPERK_W-(CLASS_WINDOWS_M_SPACE*2)) ((CLASS_THIRDPERK_H-CLASS_WINDOWS_TITLE)-(CLASS_WINDOWS_M_SPACE*2)) 0 0
+		
+		#define SECTION_ENTER( Mrect, Mmaterial, Maction ) \
+		itemDef \
+		{ \
+			type			ITEM_TYPE_BUTTON \
+			style			WINDOW_STYLE_SHADER \
+			rect			Mrect \
+			exp				material( Mmaterial ) \
+			forecolor		1 1 1 0.75 \
+			visible			1 \
+			mouseEnter 		{ setcolor forecolor 1 1 1 1; } \
+			mouseExit 		{ setcolor forecolor 1 1 1 0.75; } \
+			action 			{ play "mouse_click"; execNow "set CLASS_visCon 0; set CLASS_page 0"; Maction; } \
+		}
+		
+		#include "ui_mp/monsters_class_sections.inc"
+		
+		
+		// ============================== //
+		// =========== POPUP ============ //
+		
+		P_BLACKSCREEN( when( VIS_POPUP ) )
+		
+		#undef C_BACKGROUND
+		#define C_BACKGROUND 0.05 0 0 0.6
+		P_BACKGROUND( POPUP_X, POPUP_Y, POPUP_W, POPUP_H, when( VIS_POPUP ) )
+		#undef C_BACKGROUND
+		#define C_BACKGROUND 0 0 0 0.6
+		
+		P_BACKGROUND( POPUP_TITLE_X, POPUP_TITLE_Y, POPUP_TITLE_W, POPUP_TITLE_H, when( VIS_POPUP ) )
+		T_DYNAMIC( POPUP_TITLE_X, POPUP_TITLE_Y, POPUP_TITLE_W, POPUP_TITLE_H, POPUP_TYPE, FONTSCALE_20, C_TITLE, ITEM_ALIGN_MIDDLE_CENTER, when( VIS_POPUP ) )
+		
+		
+		P_BACKGROUND( POPUP_LIST_X, POPUP_LIST_Y, POPUP_LIST_W, POPUP_LIST_H, when( VIS_POPUP ) )
+		
+		itemDef // selected
+		{
+			rect		POPUP_LIST_X 0 POPUP_LIST_W POPUP_LIST_ITEM_H 0 0
+			exp			rect Y( POPUP_LIST_Y+(((CURRENT_ITEM-POPUP_STARTINDEX) - (POPUP_PAGE*POPUP_LIST_ITEM_COUNT))*POPUP_LIST_ITEM_H) )
+			style		WINDOW_STYLE_FILLED
+			backcolor	C_HIGHLIGHT
+			visible		when( VIS_POPUP && (CURRENT_ITEM-POPUP_STARTINDEX) >= (POPUP_PAGE*POPUP_LIST_ITEM_COUNT) && (CURRENT_ITEM-POPUP_STARTINDEX) < ((POPUP_PAGE+1)*POPUP_LIST_ITEM_COUNT))
+		}
+		
+		#define ITEM( listIndex, page, TlineIndex, Ttype, Tstat, Tname, Tinfo, Ticon, Tperm, Tprice, Trank, Tvalue0, Tvalue1, Tvalue2, Tvalue3, Tvalue4 ) \
+			itemDef \
+			{ \
+				type			ITEM_TYPE_BUTTON \
+				rect			POPUP_LIST_X (POPUP_LIST_Y + (POPUP_LIST_ITEM_H*listIndex)) POPUP_LIST_W POPUP_LIST_ITEM_H 0 0 \
+				style 			WINDOW_STYLE_FILLED \
+				backcolor		C_TRANSPARENT \
+				forecolor		C_TEXT \
+				visible			when( VIS_POPUP && Ttype == POPUP_TYPE && page == POPUP_PAGE ) \
+				exp				text( "^" + (ISAVAILABLEFULL( Tstat, Tperm, Trank )+1) + Tname ) \
+				textscale		FONTSCALE_14 \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				textalignx		ITEM_ALIGN_X_MASK \
+				mouseEnter		{ setcolor backcolor C_HIGHLIGHT; execNow "set CLASS_visCon 1; set CLASS_Tsel "TlineIndex"; set CLASS_itemStat "Tstat"; set CLASS_itemName "Tname"; set CLASS_itemDes "Tinfo"; set CLASS_itemImg "Ticon"; set CLASS_itemPerm "Tperm"; set CLASS_itemXp "Tprice"; set CLASS_itemLvl "Trank"; set CLASS_itemV0 "Tvalue0"; set CLASS_itemV1 "Tvalue1"; set CLASS_itemV2 "Tvalue2"; set CLASS_itemV3 "Tvalue3"; set CLASS_itemV4 "Tvalue4; } \
+				mouseExit		{ setcolor backcolor C_TRANSPARENT; } \
+				action			{ play "mouse_click"; scriptMenuResponse "CLASS_btn_"TlineIndex; } \
+			} \
+	
+		#include "ui_mp/monsters_class.inc"
+		
+		#define POPUP_LIST_ARROW_SIZE POPUP_LIST_ITEM_H
+		#define POPUP_LIST_MOVEBUTTONS( start, end, start_s, end_s ) \
+		itemDef \
+		{ \
+			rect			POPUP_LIST_X ((POPUP_LIST_Y+POPUP_LIST_H)-(POPUP_LIST_ARROW_SIZE*1.2)) POPUP_LIST_ARROW_SIZE POPUP_LIST_ARROW_SIZE 0 0 \
+			type			ITEM_TYPE_BUTTON \
+			style 			WINDOW_STYLE_SHADER \
+			background		"ui_arrow_left" \
+			forecolor		C_BTN_OFF \
+			visible			when( VIS_POPUP && POPUP_PAGE == end && (POPUP_LENGTH/POPUP_LIST_ITEM_COUNT) > end ) \
+			mouseEnter		{ setcolor forecolor C_BTN_ON; } \
+			mouseExit		{ setcolor forecolor C_BTN_OFF; } \
+			action			{ play "mouse_click"; execNow "set CLASS_page "start_s"; set CLASS_visCon 0"; } \
+		}	 \
+		itemDef \
+		{ \
+			rect			((POPUP_LIST_X+POPUP_LIST_W) - POPUP_LIST_ARROW_SIZE) ((POPUP_LIST_Y+POPUP_LIST_H)-(POPUP_LIST_ARROW_SIZE*1.2)) POPUP_LIST_ARROW_SIZE POPUP_LIST_ARROW_SIZE 0 0 \
+			type			ITEM_TYPE_BUTTON \
+			style 			WINDOW_STYLE_SHADER \
+			background		"ui_arrow_right" \
+			forecolor		C_BTN_OFF \
+			visible			when( VIS_POPUP && POPUP_PAGE == start && (POPUP_LENGTH/POPUP_LIST_ITEM_COUNT) > end ) \
+			mouseEnter		{ setcolor forecolor C_BTN_ON; } \
+			mouseExit		{ setcolor forecolor C_BTN_OFF; } \
+			action			{ play "mouse_click"; execNow "set CLASS_page "end_s"; set CLASS_visCon 0"; } \
+		}
+		
+		POPUP_LIST_MOVEBUTTONS( 0, 1, "0", "1" )
+		//POPUP_LIST_MOVEBUTTONS( 1, 2, "1", "2" )
+		
+		
+		#define ITEM_INDEX		DvarInt( "CLASS_Tsel" )
+		#define ITEM_TYPE		DvarString( "CLASS_popupT" )
+		#define ITEM_STAT 		DvarString( "CLASS_itemStat" )
+		#define ITEM_NAME 		DvarString( "CLASS_itemName" )
+		#define ITEM_INFO 		DvarString( "CLASS_itemDes" )
+		#define ITEM_ICON 		DvarString( "CLASS_itemImg" )
+		#define ITEM_PERMISSION DvarString( "CLASS_itemPerm" )
+		#define ITEM_PRICE 		DvarString( "CLASS_itemXp" )
+		#define ITEM_RANK 		DvarString( "CLASS_itemLvl" )
+		
+		#define ITEM_VALUE0 	DvarString( "CLASS_itemV0" )
+		#define ITEM_VALUE1 	DvarString( "CLASS_itemV1" )
+		#define ITEM_VALUE2 	DvarString( "CLASS_itemV2" )
+		#define ITEM_VALUE3 	DvarString( "CLASS_itemV3" )
+		#define ITEM_VALUE4 	DvarString( "CLASS_itemV4" )
+		
+		#define ITEM_ICON_W 80
+		#define ITEM_ICON_H (ITEM_ICON_W + (ITEM_ICON_W*ISFIGURE( ITEM_TYPE )))
+		#define ITEM_ICON_X ((POPUP_ITEM_X+POPUP_ITEM_W)-(ITEM_ICON_W+POPUP_SPACE))
+		#define ITEM_ICON_Y (POPUP_ITEM_Y+POPUP_SPACE)
+		
+		#define ITEM_INFO_X (POPUP_ITEM_X+POPUP_SPACE)
+		#define ITEM_INFO_Y (POPUP_ITEM_Y+POPUP_SPACE)
+		#define ITEM_INFO_W (POPUP_ITEM_W-ITEM_ICON_W-(POPUP_SPACE*3))
+		#define ITEM_INFO_H (POPUP_ITEM_H-(POPUP_SPACE*2))
+		
+		
+		P_BACKGROUND( POPUP_ITEM_TITLE_X, POPUP_ITEM_TITLE_Y, POPUP_ITEM_TITLE_W, POPUP_ITEM_TITLE_H, when( VIS_POPUP ) )
+		T_DYNAMIC( (POPUP_ITEM_TITLE_X+POPUP_SPACE), POPUP_ITEM_TITLE_Y, (POPUP_ITEM_TITLE_W-(POPUP_SPACE*2)), POPUP_ITEM_TITLE_H, ITEM_NAME, FONTSCALE_14, C_TITLE, ITEM_ALIGN_MIDDLE_LEFT, when( POPUP_VISCONTENT ) )
+		
+		
+		P_BACKGROUND( POPUP_ITEM_X, POPUP_ITEM_Y, POPUP_ITEM_W, POPUP_ITEM_H, when( VIS_POPUP ) )
+		
+		itemDef // description
+		{
+			rect			ITEM_INFO_X ITEM_INFO_Y ITEM_INFO_W ITEM_INFO_H 0 0
+			forecolor		C_TEXT
+			style 			WINDOW_STYLE_EMPTY
+			visible			when( POPUP_VISCONTENT )
+			exp				text( "@"+ITEM_INFO );
+			textscale		FONTSCALE_12
+			textalign		ITEM_ALIGN_TOP_LEFT
+			decoration
+			autowrapped
+		}
+		itemDef // icon autosize
+		{
+			rect			ITEM_ICON_X ITEM_ICON_Y ITEM_ICON_W 0 0 0
+			exp				rect H( ITEM_ICON_H );
+			forecolor		1 1 1 1
+			style 			WINDOW_STYLE_SHADER
+			exp				material( ITEM_ICON );
+			visible			when( POPUP_VISCONTENT )
+		}			
+		
+		#define ITEM_INFOPROGRESSBAR_SPACES (POPUP_SPACE*2)
+		#define ITEM_INFOPROGRESSBAR_TEXT_W 60
+		#define ITEM_INFOPROGRESSBAR_BAR_X (POPUP_ITEM_X+POPUP_SPACE+ITEM_INFOPROGRESSBAR_TEXT_W)
+		#define ITEM_INFOPROGRESSBAR_BAR_W (POPUP_ITEM_W-(ITEM_INFOPROGRESSBAR_TEXT_W+(POPUP_SPACE*2)))
+		#define ITEM_INFOPROGRESSBAR_Y 320
+		
+		#define ITEM_INFOPROGRESSBAR( y, h, title, progress, progressInfo, vis ) \
+			itemDef \
+			{ \
+				rect			(POPUP_ITEM_X+POPUP_SPACE) y ITEM_INFOPROGRESSBAR_TEXT_W h 0 0 \
+				forecolor		C_TEXT \
+				style 			WINDOW_STYLE_EMPTY \
+				visible			when( POPUP_VISCONTENT && vis ) \
+				text			title \
+				textscale		FONTSCALE_12 \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				decoration \
+			} \
+			itemDef \
+			{ \
+				rect			ITEM_INFOPROGRESSBAR_BAR_X y ITEM_INFOPROGRESSBAR_BAR_W h 0 0 \
+				backcolor		0 0 0 1 \
+				style 			WINDOW_STYLE_FILLED \
+				visible			when( POPUP_VISCONTENT && vis ) \
+			}		\
+			itemDef \
+			{ \
+				rect			ITEM_INFOPROGRESSBAR_BAR_X y 0 h 0 0 \
+				exp				rect W( ITEM_INFOPROGRESSBAR_BAR_W*progress ); \
+				backcolor		C_SELECTED \
+				style 			WINDOW_STYLE_FILLED \
+				visible			when( POPUP_VISCONTENT && vis && progress < 1 ) \
+			} \
+			itemDef \
+			{ \
+				rect			ITEM_INFOPROGRESSBAR_BAR_X y ITEM_INFOPROGRESSBAR_BAR_W h 0 0 \
+				backcolor		C_SELECTED \
+				style 			WINDOW_STYLE_FILLED \
+				visible			when( POPUP_VISCONTENT && vis && progress >= 1 ) \
+			} \
+			itemDef \
+			{ \
+				rect			ITEM_INFOPROGRESSBAR_BAR_X y ITEM_INFOPROGRESSBAR_BAR_W h 0 0 \
+				forecolor		C_TEXT \
+				style 			WINDOW_STYLE_EMPTY \
+				visible			when( POPUP_VISCONTENT && vis ) \
+				exp				text( progressInfo ); \
+				textscale		FONTSCALE_12 \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				decoration \
+			} \	
+		
+		#define ITEM_INFOPROGRESSBAR_ATT_SPACE (POPUP_SPACE*0.6)
+		//ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*0)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Accuracy", int( ITEM_VALUE0 )/100, "", ISWEAPON(ITEM_TYPE) )
+		ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*2)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Damage", int( ITEM_VALUE0 )/100, "", ISWEAPON(ITEM_TYPE) )
+		ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*3)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Range", int( ITEM_VALUE1 )/100, "", ISWEAPON(ITEM_TYPE) )
+		ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*4)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Fire Rate", int( ITEM_VALUE2 )/100, "", ISWEAPON(ITEM_TYPE) )
+		//ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*4)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Mobility", int( ITEM_VALUE4 )/100, "", ISWEAPON(ITEM_TYPE) )
+		
+		ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*3)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Health", int( ITEM_VALUE0 )/100, "", ISFIGURE(ITEM_TYPE) )
+		ITEM_INFOPROGRESSBAR( (ITEM_INFOPROGRESSBAR_Y+((ITEM_INFOPROGRESSBAR_SPACES+ITEM_INFOPROGRESSBAR_ATT_SPACE)*4)), ITEM_INFOPROGRESSBAR_ATT_SPACE, "Speed", int( ITEM_VALUE1 )/100, "", ISFIGURE(ITEM_TYPE) )		
+		
+		#define ITEM_INFOPROGRESSBAR_XP_SPACE (POPUP_SPACE*2.2)
+		#define ITEM_INFOPROGRESSBAR_LAST ((POPUP_ITEM_Y+POPUP_ITEM_H) - (POPUP_SPACE+ITEM_INFOPROGRESSBAR_XP_SPACE))
+		#define ITEM_INFOPROGRESSBAR_LASTBUTONE (ITEM_INFOPROGRESSBAR_LAST - (POPUP_SPACE+ITEM_INFOPROGRESSBAR_XP_SPACE))
+		#define ITEM_INFOPROGRESSBAR_LASTBUTTWO (ITEM_INFOPROGRESSBAR_LASTBUTONE - (POPUP_SPACE+POPUP_SPACE))
+	
+		ITEM_INFOPROGRESSBAR( ITEM_INFOPROGRESSBAR_LASTBUTONE, ITEM_INFOPROGRESSBAR_XP_SPACE, "XP", (stat(2301)+1)/(int(ITEM_PRICE)+1), stat(2301)+"  /  "+ITEM_PRICE, ISAVAILABLETOXPBUY(ITEM_STAT, ITEM_PERMISSION, ITEM_PRICE) == 1 )		
+		ITEM_INFOPROGRESSBAR( ITEM_INFOPROGRESSBAR_LAST, ITEM_INFOPROGRESSBAR_XP_SPACE, "Level", (stat(2350)+1)/(int(ITEM_RANK)+1), (stat(2350)+1)+"  /  "+(int(ITEM_RANK)+1), (ISAVAILABLETOXPBUY(ITEM_STAT, ITEM_PERMISSION, ITEM_PRICE) == 1 || ISAVAILABLERANKBUY( ITEM_PERMISSION ) == 1) )
+
+		
+		// ============================= //
+		// SPAM WINDOW //
+		#define VIS_SPAMW (DvarString( "CLASS_spamT" ) != "")
+
+		#define SPAMW_SPACE 4
+		
+		#define SPAMW_W 200
+		#define SPAMW_H 100		
+		#define SPAMW_X (CLASS_X+((CLASS_W-SPAMW_W)*0.5))
+		#define SPAMW_Y (CLASS_Y+((CLASS_H-SPAMW_H)*0.5))
+		
+		#define SPAMW_TITLE_X (SPAMW_X+SPAMW_SPACE)
+		#define SPAMW_TITLE_Y (SPAMW_Y+SPAMW_SPACE)
+		#define SPAMW_TITLE_W (SPAMW_W-(SPAMW_SPACE*2))
+		#define SPAMW_TITLE_H 20
+		
+		#define SPAMW_DESCRIPTION_X SPAMW_TITLE_X
+		#define SPAMW_DESCRIPTION_Y (SPAMW_TITLE_Y+SPAMW_TITLE_H+SPAMW_SPACE)
+		#define SPAMW_DESCRIPTION_W SPAMW_TITLE_W
+		#define SPAMW_DESCRIPTION_H (SPAMW_H-SPAMW_TITLE_H-(SPAMW_SPACE*3))
+
+		#define SPAMW_BUTTONS_W SPAMW_DESCRIPTION_W
+		#define SPAMW_BUTTONS_H 20		
+		#define SPAMW_BUTTONS_X SPAMW_DESCRIPTION_X
+		#define SPAMW_BUTTONS_Y (SPAMW_DESCRIPTION_Y+SPAMW_DESCRIPTION_H-SPAMW_BUTTONS_H)
+		
+		P_BLACKSCREEN( when( VIS_SPAMW ) )
+		
+		#undef C_BACKGROUND
+		#define C_BACKGROUND 0.05 0 0 0.6
+		P_BACKGROUND( SPAMW_X, SPAMW_Y, SPAMW_W, SPAMW_H, when( VIS_SPAMW ) )
+		#undef C_BACKGROUND
+		#define C_BACKGROUND 0 0 0 0.6		
+		
+		P_BACKGROUND( SPAMW_TITLE_X, SPAMW_TITLE_Y, SPAMW_TITLE_W, SPAMW_TITLE_H, when( VIS_SPAMW ) )
+		T_DYNAMIC( SPAMW_TITLE_X, SPAMW_TITLE_Y, SPAMW_TITLE_W, SPAMW_TITLE_H, DvarString( "CLASS_spamT" ), FONTSCALE_14, C_TITLE, ITEM_ALIGN_MIDDLE_CENTER, when( VIS_SPAMW ) )
+		
+		
+		P_BACKGROUND( SPAMW_DESCRIPTION_X, SPAMW_DESCRIPTION_Y, SPAMW_DESCRIPTION_W, SPAMW_DESCRIPTION_H, when( VIS_SPAMW ) )
+		itemDef // description
+		{ 
+			style			WINDOW_STYLE_EMPTY
+			rect			(SPAMW_DESCRIPTION_X+SPAMW_SPACE) (SPAMW_DESCRIPTION_Y+SPAMW_SPACE) (SPAMW_DESCRIPTION_W-(SPAMW_SPACE*2)) (SPAMW_DESCRIPTION_H-(SPAMW_SPACE*2)) 0 0
+			visible			when( VIS_SPAMW )
+			exp				text( DvarString( "CLASS_spamC" ) );
+			forecolor		C_TEXT
+			textscale		FONTSCALE_12
+			textalign		ITEM_ALIGN_TOP_LEFT
+			decoration		autowrapped	
+		}		
+		
+		P_BACKGROUND( SPAMW_BUTTONS_X, SPAMW_BUTTONS_Y, SPAMW_BUTTONS_W, SPAMW_BUTTONS_H, when( VIS_SPAMW ) )
+		BTN_T_CENTER_STATIC( SPAMW_BUTTONS_X, SPAMW_BUTTONS_Y, (SPAMW_BUTTONS_W*0.5), SPAMW_BUTTONS_H, "OK", FONTSCALE_14, scriptMenuResponse "CLASS_spamW_OK";, ;, ;, when( VIS_SPAMW ) )
+		BTN_T_CENTER_STATIC( (SPAMW_BUTTONS_X+(SPAMW_BUTTONS_W*0.5)), SPAMW_BUTTONS_Y, (SPAMW_BUTTONS_W*0.5), SPAMW_BUTTONS_H, "Cancel", FONTSCALE_14, scriptMenuResponse "CLASS_spamW_C";, ;, ;, when( VIS_SPAMW ) )
+	}
+}

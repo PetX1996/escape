@@ -1,0 +1,43 @@
+10MonsterClassTable
+-------------------------------------------
+permission: 0 - nemoûnÈ k˙più
+            1 - dostupnÈ vûdy
+            2 - potrebnÈ k˙più | if(xp == 0) - nemoûnÈ k˙più
+	    3 - kontroluje len RANK
+
+///////////////////////////////////////////
+// CLASS
+///////////////////////////////////////////
+
+z·klad:
+------------
+0LineIndex,1Type,2Stat,3Name,4Image,5Permission,6Price,7Rank
+
+Figure
+------------
+8BodyModel,9BodyHead,10BodyHands,11Health,12Speed,13Function,14Ability,15Info
+
+Weapon
+------------
+8WeaponFile,9KnifeDamage, 10KnifeRange
+
+Perks
+------------
+8PerkName
+
+
+///////////////////////////////////////////
+// WEAPONINFO
+///////////////////////////////////////////
+
+z·klad:
+------------
+0LineIndex,1Type,2Stat,3Name,4Image,5Permission,6Price,7Rank,8Money
+
+primary weapons
+------------
+9WeaponFile
+
+inventory
+------------
+9Inventory

@@ -1,0 +1,4 @@
+init()
+{
+	level.Clients = SpawnStruct();
+}

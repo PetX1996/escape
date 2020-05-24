@@ -1,0 +1,67 @@
+// ============================
+// FIGURE
+// ============================
+material,icon_body_m_skulls
+xmodel,escape_body_skulls
+
+material,icon_body_m_raam
+xmodel,escape_body_raam
+
+material,icon_body_m_max
+xmodel,escape_body_max
+
+
+xmodel,viewhands_black_kit
+
+// ============================
+// WEAPONS
+// ============================
+//xanim,pb_tomahawk_stand_idle
+
+sound,melee,,all_mp
+
+// cobra_ffar_mp - Throwing Knife
+material,icon_weapon_knife
+
+xanim,viewmodel_ray_gun_drop
+xanim,viewmodel_ray_gun_fire
+xanim,viewmodel_ray_gun_idle
+xanim,viewmodel_ray_gun_quick_drop
+xanim,viewmodel_ray_gun_quick_raise
+xanim,viewmodel_ray_gun_raise
+
+// mp5_reflex_mp - AXE
+xmodel,tom_axe_model
+xmodel,tom_axe_model_world
+xanim,tom_axe_idle
+xanim,tom_axe_fire
+xanim,tom_axe_pullout
+xanim,tom_axe_drop_long
+
+// mp5_silencer_mp - KATANA
+xmodel,tom_katana_model
+xmodel,tom_katana_model_world°
+xanim,tom_katana_idle
+xanim,tom_katana_fire
+xanim,tom_katana_pullout
+xanim,tom_katana_drop
+
+// mp5_acog_mp - SHOVEL
+xmodel,tom_shovel_model
+xmodel,tom_shovel_model_world°
+xanim,tom_shovel_idle
+xanim,tom_shovel_fire
+xanim,tom_shovel_pullout
+xanim,tom_shovel_drop
+
+// ============================
+// FIRSTPERK
+// ============================
+
+// ============================
+// SECONDPERK
+// ============================
+
+// ============================
+// THIRDPERK
+// ============================

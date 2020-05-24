@@ -1,0 +1,1089 @@
+// PC HUD - MP
+
+#include "ui/menudef.h"
+
+#define TEAM_IS_MARINES		(localVarString( ui_team ) == "marines")
+#define TEAM_IS_OPFOR		(localVarString( ui_team ) == "opfor")
+
+#define HUD_ALPHA 0.65
+#define HUD_FOREGROUND_ALPHA 0.75
+#define DPAD_ICON_ALPHA 0.65
+
+#define NOT_SPECTATING (!spectatingClient())
+#define UI_DISABLE ( menuisopen( clientcmd ) || !ui_active() )
+
+#define	BOTTOM_RECT_X 0
+#define	BOTTOM_RECT_Y 0
+
+#define MINIMAP_ORIGIN 2 11
+{
+	assetGlobalDef
+	{
+		fadeClamp		1					// sets the fadeup alpha
+		fadeCycle		1					// how often fade happens in milliseconds
+		fadeAmount		0.1					// amount to adjust alpha per cycle
+	}
+	
+	#define ALLIES_HAVE_UAV (dvarint( ui_uav_allies ) && team( name ) == "TEAM_ALLIES" )
+	#define AXIS_HAVE_UAV (dvarint( ui_uav_axis ) && team( name ) == "TEAM_AXIS" )
+	#define CLIENT_HAS_UAV (dvarint( ui_uav_client ) && team( name ) == "TEAM_FREE" )
+	
+	#define RECT_COMPASS	0 0 COMPASS_SIZE_MP COMPASS_SIZE_MP HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP
+	#undef MINIMAP_ORIGIN
+	#define MINIMAP_ORIGIN 	6 6 //2 2
+	
+	// Compass
+	menuDef
+	{
+		name			"Compass_old"
+ 	   	rect			RECT_COMPASS
+ 	   	fullScreen		0
+		//visible 		when ( !inkillcam() && !flashbanged() && !ui_active() && !scoped() && (dvarString( createfx ) != "on") && (dvarint( ui_hud_hardcore ) == 0 || ALLIES_HAVE_UAV || AXIS_HAVE_UAV || CLIENT_HAS_UAV || dvarInt( g_compassShowEnemies ) ) && NOT_SPECTATING );
+		visible 		when( dvarInt( ui_show_hud ) && !scoped() && !selecting_location() && !inkillcam() && !flashbanged() && UI_DISABLE && !isIntermission() && !spectatingClient() && team( name ) != "TEAM_SPECTATOR" )
+		itemDef
+		{
+			name			"minimapBG"
+			rect			(MINIMAP_X_MP - 14) (MINIMAP_Y_MP - 6) COMPASS_SIZE_MP COMPASS_SIZE_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			background		"minimap_background"
+			ownerdraw		CG_PLAYER_COMPASS_BACK
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+			decoration
+		}
+		itemDef
+        {
+            name			"minimapTickerBorder"
+            rect			MINIMAP_X_MP (MINIMAP_Y_MP - 15) MINIMAP_W_MP 14
+	 	   	origin 			MINIMAP_ORIGIN
+            forecolor		1 1 1 1
+            background		"minimap_tickertape_background"
+            ownerdraw		CG_PLAYER_COMPASS_BACK
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+			decoration
+        }
+		itemDef
+        {
+            name			"minimapTicker"
+            rect			MINIMAP_X_MP (MINIMAP_Y_MP - 12) MINIMAP_W_MP 9
+	 	   	origin 			MINIMAP_ORIGIN
+            forecolor		1 1 1 1
+            background		"minimap_tickertape_mp"
+            ownerdraw		CG_PLAYER_COMPASS_TICKERTAPE_NO_OBJ
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+			decoration
+        }
+		itemDef
+ 	   	{
+			name			"mini_map"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			background		"compass_map_default"
+			ownerdraw		CG_PLAYER_COMPASS_MAP
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+			decoration
+ 	   	}     
+		// Objective pointers
+		itemDef
+		{
+			name			"compasspointers"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			background		"objective_line"
+			ownerdraw		CG_PLAYER_COMPASS_POINTERS
+			visible when ( !selecting_location() && dvarint( ui_hud_showobjicons ) > 0 && dvarint( ui_show_minimap ) );
+			decoration
+		}
+ 	   	// Friendlies pointers
+		itemDef
+		{
+			name			"compassfriendlies"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_COMPASS_FRIENDS
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+		}
+		// Enemy pings
+		itemDef
+		{
+			name			"compassenemies"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_COMPASS_ENEMIES
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+		}
+ 	   	// Helicopter pointers
+		itemDef
+		{
+			name			"compasshelicopters"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_COMPASS_HELICOPTERS
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+		}
+ 	   	// Plane pointers
+		itemDef
+		{
+			name			"compassplanes"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_COMPASS_PLANES
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+		}
+		// Player direction indicator
+		itemDef
+		{
+			name			"compassplayer"
+			rect			MINIMAP_X_MP MINIMAP_Y_MP MINIMAP_W_MP MINIMAP_H_MP
+	 	   	origin 			MINIMAP_ORIGIN
+			forecolor		1 1 1 1//HUD_FOREGROUND_ALPHA
+			background		"compassping_player"
+			ownerdraw		CG_PLAYER_COMPASS_PLAYER
+			visible when ( !selecting_location() && dvarint( ui_show_minimap ) );
+		}
+		// shop touching icon
+		itemDef
+		{
+			rect			(MINIMAP_X_MP-2) (MINIMAP_Y_MP+108) 32 32
+			origin 			MINIMAP_ORIGIN
+			style			WINDOW_STYLE_SHADER
+			background		"icon_buy"
+			forecolor		1 1 1 1
+			visible			when( !selecting_location() && DvarBool( "hud_shop" ) )
+		}
+	}
+
+	/* ==================================================================================== */
+	/* ================================== SPODNÝ BAR ====================================== */
+	/* ==================================================================================== */
+	#define HUD_BOTTOM_MAINBAR_H 2
+	
+	#define HUD_BOTTOM_SIZE 36
+	#define HUD_BOTTOM_BORDER 4
+	
+	#define HUD_BOTTOM_W (640 - (HUD_BOTTOM_BORDER*2))
+	#define HUD_BOTTOM_H (HUD_BOTTOM_SIZE-(HUD_BOTTOM_MAINBAR_H+(HUD_BOTTOM_BORDER*2)))	
+	#define HUD_BOTTOM_X HUD_BOTTOM_BORDER
+	#define HUD_BOTTOM_Y ((480-HUD_BOTTOM_SIZE)+HUD_BOTTOM_BORDER)
+	
+	menuDef
+	{
+		name			"xpbar"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible 		when( dvarInt( ui_show_hud ) && dvarInt( hud_bottom_bar ) && !scoped() && !selecting_location() && !inkillcam() && !flashbanged() && UI_DISABLE && !isIntermission() && !spectatingClient() && team( name ) != "TEAM_SPECTATOR" )
+
+		/* ================= pozadie =================== */
+		itemDef
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 (0-HUD_BOTTOM_SIZE) 640 HUD_BOTTOM_SIZE HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_BOTTOM
+			background		"white"
+			forecolor		0 0 0 0.5
+			visible			1
+			decoration
+		}
+		
+		/* ================= dolný progress bar =================== */
+		itemDef //pozadie
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 (0-HUD_BOTTOM_MAINBAR_H) 640 HUD_BOTTOM_MAINBAR_H HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_BOTTOM
+			background		"white"
+			forecolor		0.2 0.2 0.2 0.5
+			visible			1
+			decoration
+		}
+
+		itemDef //linka
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			-160 (0-HUD_BOTTOM_MAINBAR_H) 0 HUD_BOTTOM_MAINBAR_H HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_BOTTOM
+			exp				rect W( (( dvarint( hud_progressbar_bottom )/100 ) * 640) + 160);
+			background		"gradient_fadein"
+			forecolor		1 1 0 1
+			visible			1
+			decoration
+		}
+
+		/* ================= horný progress bar - pracovný =================== */
+		itemDef //pozadie
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 (0-(HUD_BOTTOM_SIZE+HUD_BOTTOM_MAINBAR_H)) 640 HUD_BOTTOM_MAINBAR_H HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_BOTTOM
+			background		"white"
+			forecolor		0.1 0.1 0.1 0.5
+			visible			when( dvarint( hud_progressbar_top ) != 0 )
+			decoration
+		}
+		
+		#define PROGRESSBAR_COLOR( color, vis ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			-160 (0-(HUD_BOTTOM_SIZE+HUD_BOTTOM_MAINBAR_H)) 0 HUD_BOTTOM_MAINBAR_H HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_BOTTOM \
+			exp				rect W( (( dvarint( hud_progressbar_top )/100 ) * 640) + 160); \
+			background		"gradient_fadein" \
+			forecolor		color \
+			visible			when( dvarint( hud_progressbar_top ) != 0 && vis ) \
+			decoration \
+		} \
+		
+		PROGRESSBAR_COLOR( 0 0 0 1, dvarint( hud_progressbar_top_color ) == 0 )
+		PROGRESSBAR_COLOR( 1 0 0 1, dvarint( hud_progressbar_top_color ) == 1 )
+		PROGRESSBAR_COLOR( 0 1 0 1, dvarint( hud_progressbar_top_color ) == 2 )
+		PROGRESSBAR_COLOR( 1 1 0 1, dvarint( hud_progressbar_top_color ) == 3 )
+		PROGRESSBAR_COLOR( 0 0 1 1, dvarint( hud_progressbar_top_color ) == 4 )
+		PROGRESSBAR_COLOR( 0 1 1 1, dvarint( hud_progressbar_top_color ) == 5 )
+		PROGRESSBAR_COLOR( 1 0 1 1, dvarint( hud_progressbar_top_color ) == 6 )
+		PROGRESSBAR_COLOR( 1 1 1 1, dvarint( hud_progressbar_top_color ) == 7 )
+				
+		// =============== PLAYER BARS =================== //			
+		#define HUD_PLAYERBARS_COUNT 2
+		#define HUD_PLAYERBARS_SPACE 4
+		
+		#define HUD_PLAYERBARS_X HUD_BOTTOM_X
+		#define HUD_PLAYERBARS_Y HUD_BOTTOM_Y
+		
+		#define HUD_PLAYERBARS_W 160
+		#define HUD_PLAYERBARS_H ((HUD_BOTTOM_H - ((HUD_PLAYERBARS_COUNT-1)*HUD_PLAYERBARS_SPACE))/HUD_PLAYERBARS_COUNT)
+		
+		#define HUD_PLAYERBARS_BAR_W (HUD_PLAYERBARS_W-HUD_PLAYERBARS_H)
+		
+		#define PLAYERBAR( index, bgColor, highlightColor, icon, percentageX, vis ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			HUD_PLAYERBARS_X (HUD_PLAYERBARS_Y+((HUD_PLAYERBARS_H+HUD_PLAYERBARS_SPACE)*index)) HUD_PLAYERBARS_BAR_W HUD_PLAYERBARS_H 0 0 \
+			background		"white" \
+			forecolor		bgColor \
+			visible			vis \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			HUD_PLAYERBARS_X (HUD_PLAYERBARS_Y+((HUD_PLAYERBARS_H+HUD_PLAYERBARS_SPACE)*index)) 0 HUD_PLAYERBARS_H 0 0 \
+			exp				rect W( ( percentageX/100 ) * HUD_PLAYERBARS_BAR_W ); \
+			background		"white" \
+			forecolor		highlightColor \
+			visible			vis \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			(HUD_PLAYERBARS_X+HUD_PLAYERBARS_BAR_W) (HUD_PLAYERBARS_Y+((HUD_PLAYERBARS_H+HUD_PLAYERBARS_SPACE)*index)) HUD_PLAYERBARS_H HUD_PLAYERBARS_H 0 0 \
+			background		icon \
+			forecolor		1 1 1 1 \
+			visible			vis \
+		}
+		
+		// dvars
+		// hud_health
+		// hud_specBar_P
+		// hud_specBar_T
+		PLAYERBAR( 0, 1 1 1 1, 0 1 0 1, "hud_healthbar_heart", DvarInt( "hud_health" ), when( DvarInt( "hud_health" ) > 66 ) )
+		PLAYERBAR( 0, 1 1 1 1, 1 1 0 1, "hud_healthbar_heart", DvarInt( "hud_health" ), when( DvarInt( "hud_health" ) >= 33 && DvarInt( "hud_health" ) <= 66 ) )
+		PLAYERBAR( 0, 1 1 1 1, 1 0 0 1, "hud_healthbar_heart", DvarInt( "hud_health" ), when( DvarInt( "hud_health" ) < 33 ) )
+		
+		PLAYERBAR( 1, 1 1 1 1, 0 0 1 1, "weapon_c4", DvarInt( "hud_specBar_P" ), when( DvarInt( "hud_specBar_T" ) == 1 ) )
+		#define SPECIALITY_PROGRESS ( (MilliSeconds()-DvarInt( "spec_time" )) / (DvarInt( "hud_specBar_P" )*1000) )
+		PLAYERBAR( 1, 1 1 1 1, 0 0 1 1, "weapon_c4", (SPECIALITY_PROGRESS * 100), when( DvarInt( "hud_specBar_T" ) == 2 && SPECIALITY_PROGRESS <= 1 ) )
+		PLAYERBAR( 1, 1 1 1 1, 0 0 1 1, "weapon_c4", 100, when( DvarInt( "hud_specBar_T" ) == 2 && (SPECIALITY_PROGRESS > 1 || SPECIALITY_PROGRESS == 0) ) )
+		
+		#define ITEM_WINDOW_SPACE 2
+		#define ITEM_WINDOW_X (HUD_PLAYERBARS_X+HUD_PLAYERBARS_W)
+		#define ITEM_WINDOW_Y HUD_BOTTOM_Y
+		
+		#define ITEM_WINDOW_W (HUD_BOTTOM_H+(HUD_BOTTOM_H/3))
+		#define ITEM_WINDOW_H HUD_BOTTOM_H
+	
+		#define ITEM_WINDOW_STARTSPACE (HUD_BOTTOM_H/3)
+	
+		#define ITEM_WINDOW( x, y, w, h, topIcon, topText, bottomText, vis ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			(ITEM_WINDOW_X+x) (ITEM_WINDOW_Y+y) w h 0 0 \
+			exp				material( topIcon ) \
+			forecolor		1 1 1 1 \
+			visible			vis \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_WINDOW_X+x+w) (ITEM_WINDOW_Y+y) (w/3) (h/2) 0 0 \
+			exp				text( topText ) \
+			textalign		ITEM_ALIGN_MIDDLE_CENTER \
+			textscale		0.3125 \
+			forecolor		1 1 1 1 \
+			visible			vis \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_WINDOW_X+x+w) (ITEM_WINDOW_Y+y+(h/2)) (w/3) (h/2) 0 0 \
+			exp				text( bottomText ) \
+			textalign		ITEM_ALIGN_MIDDLE_CENTER \
+			textscale		0.3125 \
+			forecolor		1 1 1 1 \
+			visible			vis \
+		} \
+		
+		// PERKS
+		#define ITEM_PERK_STARTSPACE 0
+		#define ITEM_PERK_COUNT 3
+		#define ITEM_PERK_SPACE 4
+		#define ITEM_PERK_X (HUD_PLAYERBARS_X+HUD_PLAYERBARS_W+ITEM_PERK_STARTSPACE)
+		#define ITEM_PERK_Y HUD_BOTTOM_Y
+		#define ITEM_PERK_H HUD_BOTTOM_H
+		#define ITEM_PERK_W ((ITEM_PERK_H+ITEM_PERK_SPACE)*ITEM_PERK_COUNT)
+		
+		#define ITEM_PERK( index ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			(ITEM_PERK_X+ITEM_PERK_SPACE+((ITEM_PERK_H+ITEM_PERK_SPACE)*index)) ITEM_PERK_Y ITEM_PERK_H ITEM_PERK_H 0 0 \
+			exp				material( DvarString( "hud_Perk"+index+"M" ) ) \
+			forecolor		1 1 1 1 \
+			visible			when( DvarString( "hud_Perk"+index+"M" ) != "" ) \
+		} \
+		
+		ITEM_PERK( 0 )
+		ITEM_PERK( 1 )
+		ITEM_PERK( 2 )
+		
+		itemDef
+		{
+			style			WINDOW_STYLE_EMPTY
+			rect			(ITEM_PERK_X+ITEM_PERK_SPACE+((ITEM_PERK_H+ITEM_PERK_SPACE)*2)+ITEM_PERK_H) (ITEM_PERK_Y+(ITEM_PERK_H*0.5)) (ITEM_PERK_H*0.25) (ITEM_PERK_H*0.5) 0 0
+			exp				text( "^3"+KeyBinding("+actionslot 1") )
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			textscale		0.3000
+			forecolor		1 1 1 1
+			visible			when( DvarBool( "hud_Perk3BTN" ) == 1 )
+		}
+		
+		// INVENTORY
+		#define ITEM_INVENTORY_COUNT 2
+		#define ITEM_INVENTORY_SPACE 10
+		#define ITEM_INVENTORY_X 330
+		#define ITEM_INVENTORY_Y HUD_BOTTOM_Y
+		#define ITEM_INVENTORY_H HUD_BOTTOM_H
+		#define ITEM_INVENTORY_W ((ITEM_INVENTORY_H+ITEM_INVENTORY_SPACE)*ITEM_INVENTORY_COUNT)
+	
+		#define ITEM_INVENTORY( index ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_SHADER \
+			rect			(ITEM_INVENTORY_X+ITEM_INVENTORY_SPACE+((ITEM_INVENTORY_H+ITEM_INVENTORY_SPACE)*index)) ITEM_INVENTORY_Y ITEM_INVENTORY_H ITEM_INVENTORY_H 0 0 \
+			exp				material( DvarString( "hud_Inv"+index+"M" ) ) \
+			forecolor		1 1 1 1 \
+			visible			when( DvarString( "hud_Inv"+index+"M" ) != "" ) \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_INVENTORY_X+ITEM_INVENTORY_SPACE+((ITEM_INVENTORY_H+ITEM_INVENTORY_SPACE)*index)+ITEM_INVENTORY_H) ITEM_INVENTORY_Y (ITEM_INVENTORY_H*0.25) (ITEM_INVENTORY_H*0.5) 0 0 \
+			exp				text( DvarString( "hud_Inv"+index+"T" ) ) \
+			textalign		ITEM_ALIGN_MIDDLE_CENTER \
+			textscale		0.3125 \
+			forecolor		1 1 1 1 \
+			visible			when( DvarString( "hud_Inv"+index+"M" ) != "" ) \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_INVENTORY_X+ITEM_INVENTORY_SPACE+((ITEM_INVENTORY_H+ITEM_INVENTORY_SPACE)*index)+ITEM_INVENTORY_H) (ITEM_INVENTORY_Y+(ITEM_INVENTORY_H*0.5)) (ITEM_INVENTORY_H*0.25) (ITEM_INVENTORY_H*0.5) 0 0 \
+			exp				text( "^3"+KeyBinding("+actionslot "+(index+3)) ) \
+			textalign		ITEM_ALIGN_MIDDLE_CENTER \
+			textscale		0.3000 \
+			forecolor		1 1 1 1 \
+			visible			when( DvarString( "hud_Inv"+index+"M" ) != "" ) \
+		} \
+	
+		ITEM_INVENTORY( 0 )
+		ITEM_INVENTORY( 1 )
+		
+		// WEAPONS
+		#define ITEM_WEAPONS_COUNT 4
+		#define ITEM_WEAPONS_SPACE 10
+		#define ITEM_WEAPONS_X 500
+		#define ITEM_WEAPONS_Y HUD_BOTTOM_Y
+		#define ITEM_WEAPONS_H HUD_BOTTOM_H
+		#define ITEM_WEAPONS_W ((ITEM_WEAPONS_H+ITEM_WEAPONS_SPACE)*ITEM_WEAPONS_COUNT)
+		
+		#define ITEM_WEAPONS_GRENADE( index, iconDraw, ammoDraw ) \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_WEAPONS_X+ITEM_WEAPONS_SPACE+((ITEM_WEAPONS_H+ITEM_WEAPONS_SPACE)*index)) ITEM_WEAPONS_Y ITEM_WEAPONS_H ITEM_WEAPONS_H 0 0 \
+			ownerdraw		iconDraw \
+			forecolor		1 1 1 1 \
+			visible			1 \
+		} \
+		itemDef \
+		{ \
+			style			WINDOW_STYLE_EMPTY \
+			rect			(ITEM_WEAPONS_X+ITEM_WEAPONS_SPACE+((ITEM_WEAPONS_H+ITEM_WEAPONS_SPACE)*index)+ITEM_WEAPONS_H) (ITEM_WEAPONS_Y+(ITEM_WEAPONS_H*1)) (ITEM_WEAPONS_H*0.25) (ITEM_WEAPONS_H*0.5) 0 0 \
+			ownerdraw		ammoDraw \
+			textalign		ITEM_ALIGN_MIDDLE_CENTER \
+			textscale		0.3125 \
+			forecolor		1 1 1 1 \
+			visible			1 \
+		} \		
+		
+		ITEM_WEAPONS_GRENADE( 0, CG_OFFHAND_WEAPON_ICON_SMOKEFLASH, CG_OFFHAND_WEAPON_AMMO_SMOKEFLASH )
+		ITEM_WEAPONS_GRENADE( 1, CG_OFFHAND_WEAPON_ICON_FRAG, CG_OFFHAND_WEAPON_AMMO_FRAG )
+		
+		#define WEAPON_X 620
+		itemDef
+		{
+			style			WINDOW_STYLE_EMPTY
+			rect			WEAPON_X ITEM_WEAPONS_Y (ITEM_WEAPONS_H*0.6) (ITEM_WEAPONS_H*0.65) 0 0
+			ownerdraw		CG_PLAYER_WEAPON_PRIMARY_ICON
+			//exp				material( DvarString( "hud_Weap"+weapIndex+"M" ) );
+			forecolor		1 1 1 1
+			visible			1
+		}
+		itemDef
+		{
+			style			WINDOW_STYLE_EMPTY
+			rect			(WEAPON_X-(ITEM_WEAPONS_H*1.5)) (ITEM_WEAPONS_Y+(ITEM_WEAPONS_H*1.05)) (ITEM_WEAPONS_H*1.75) (ITEM_WEAPONS_H*0.20) 0 0
+			//exp				text( DvarInt( "hud_Weap"+weapIndex+"T" ) );
+			ownerdraw		CG_PLAYER_AMMO_VALUE
+			textalign		ITEM_ALIGN_BOTTOM_CENTER
+			textscale		0.2400
+			forecolor		1 1 1 1
+			visible			1
+ 		}
+
+		
+		// dvars
+		// hud_Perk0M
+		// hud_Perk1M
+		// hud_Perk2M
+		// hud_Inv0M
+		// hud_Inv0T
+		// hud_Inv1M
+		// hud_Inv1T
+	}
+
+	/* ======================================================================================== */
+	/* ============================ POSTRANNÝ PANEL VPRAVO ==================================== */
+	/* ======================================================================================== */
+	menuDef
+	{
+		name			"scorebar"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible 		when( !scoped() && !selecting_location() && !inkillcam() && !flashbanged() && !isIntermission() && !spectatingClient() )
+
+		itemDef //round
+		{ 
+			rect			-186 30 180 29 HORIZONTAL_ALIGN_RIGHT VERTICAL_ALIGN_TOP 
+			textscale		0.75
+			textalign		ITEM_ALIGN_MIDDLE_RIGHT
+			forecolor		1 1 1 1
+			exp				text( dvarInt( hud_round )+"/"+dvarInt( hud_roundlimit ) ); 
+			visible			when( ( UI_DISABLE && dvarInt( ui_show_hud ) ) || menuisopen( scoreboard ) )
+			decoration
+		}
+		
+		itemDef //cp
+		{ 
+			rect			-186 -75 180 20 HORIZONTAL_ALIGN_RIGHT VERTICAL_ALIGN_BOTTOM 
+			textscale		0.3333
+			textalign		ITEM_ALIGN_MIDDLE_RIGHT
+			forecolor		1 1 1 1
+			exp				text( dvarint( hud_money ) +" $" ); 
+			visible			when( UI_DISABLE && dvarInt( ui_show_hud ) )
+			decoration
+		}
+		
+		itemDef //xp
+		{ 
+			rect			-186 -60 180 20 HORIZONTAL_ALIGN_RIGHT VERTICAL_ALIGN_BOTTOM 
+			textscale		0.3333
+			textalign		ITEM_ALIGN_MIDDLE_RIGHT
+			forecolor		1 1 1 1
+			exp				text( stat( 2301 ) +" XP" ); 
+			visible			when( UI_DISABLE && dvarInt( ui_show_hud ) )
+			decoration
+		}
+	}
+	
+	menuDef
+	{
+		name			"scorebars"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible 		when( !scoped() && !selecting_location() && !inkillcam() && !flashbanged() && UI_DISABLE && !isIntermission() )
+
+		// ======================================================================================== //
+		// ============================== LOWER MESSAGES HUD ====================================== //
+		// ======================================================================================== //
+		// hud_lower_vis = none/all/text/timer
+		#define TEAM	team( name ) != "TEAM_SPECTATOR"
+		
+		itemDef //lower - text
+		{ 
+			rect			-320 80 640 20 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			textscale		TEXTSIZE_SMALL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			forecolor		1 1 1 1
+			exp				text( dvarstring( hud_lower_text ) ); 
+			visible			when( ( dvarint( hud_lower_vis ) == 2 || ( dvarint( hud_lower_vis ) == 1 && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) ) ) && TEAM )
+			decoration
+		}
+		
+		itemDef //lower progress bar - pozadie
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 100 0 8 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			exp				rect X( (-1) * (dvarint( hud_lower_bar_size )/2) );
+			exp				rect W( dvarint( hud_lower_bar_size ) );
+			background		"white"
+			forecolor		0 0 0 0.5
+			visible			when( ( dvarint( hud_lower_vis ) == 1 || dvarint( hud_lower_vis ) == 3 ) && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) && TEAM )
+			decoration
+		}
+		
+		#define LOWER_PROGRESS ( 1 - ( (milliseconds()-dvarint( lower_time )) / (dvarint( hud_lower_bar_time )*1000) ) )
+		itemDef //lower progress bar - line
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 100 0 8 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			exp				rect X( (-1) * (dvarint( hud_lower_bar_size )/2) );
+			exp				rect W( LOWER_PROGRESS * dvarint( hud_lower_bar_size ) );
+			background		"white"
+			forecolor		1 1 1 1
+			visible			when( ( dvarint( hud_lower_vis ) == 1 || dvarint( hud_lower_vis ) == 3 ) && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) && TEAM )
+			decoration
+		}
+
+		// ======================================================================================== //
+		// ================================== QUICK VOTING ======================================== //
+		// ======================================================================================== //
+		// dvars
+		// hud_quickVoting
+		#define QV_X 0
+		#define QV_Y -30
+		#define QV_W 140
+		#define QV_H 52
+		#define QV_FADE_F 0.75
+		#define QV_BG_COLOR 0 0 0 0.35
+		#define QV_ITEM_X (QV_X+6)
+		#define QV_ITEM_Y (QV_Y+18)
+		#define QV_ITEM_H 15
+		itemDef // background fill
+		{
+			rect			QV_X QV_Y (QV_W*QV_FADE_F) QV_H HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_CENTER
+			style			WINDOW_STYLE_FILLED
+			backcolor		QV_BG_COLOR
+			visible			when( DvarString( "hud_quickVoting" ) != "" )
+		}
+		itemDef // background fadein
+		{
+			rect			(QV_X+(QV_W*QV_FADE_F)) QV_Y (0-(QV_W*(1-QV_FADE_F))) QV_H HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_CENTER
+			style			WINDOW_STYLE_SHADER
+			background		"gradient_fadein"
+			forecolor		QV_BG_COLOR
+			visible			when( DvarString( "hud_quickVoting" ) != "" )
+		}
+		itemDef // title
+		{
+			rect			(QV_X+(QV_ITEM_X*0.5)) QV_Y QV_W QV_ITEM_H HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_CENTER
+			style			WINDOW_STYLE_EMPTY
+			exp				text( DvarString( "hud_quickVoting" ) );
+			textscale		0.3333
+			textalign		ITEM_ALIGN_MIDDLE_LEFT
+			forecolor		1 1 1 1
+			visible			when( DvarString( "hud_quickVoting" ) != "" )
+		}
+		#define QV_ITEM( num, choice ) \
+			itemDef \
+			{ \
+				rect			QV_ITEM_X (QV_ITEM_Y+(QV_ITEM_H*num)) QV_W QV_ITEM_H HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_CENTER \
+				style			WINDOW_STYLE_EMPTY \
+				exp				text( choice ); \
+				textscale		0.3333 \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				forecolor		1 1 1 1 \
+				visible			when( DvarString( "hud_quickVoting" ) != "" ) \
+			} \
+		
+		QV_ITEM( 0, "[" + KeyBinding("openScriptMenu modkeybind btn_voteyes") + "] Yes" )
+		QV_ITEM( 1, "[" + KeyBinding("openScriptMenu modkeybind btn_voteno") + "] No" )
+	}
+
+	//#define WEAPINFO_X -150
+	//#define WEAPINFO_Y -60
+	#define WEAPINFO_X -4
+	#define WEAPINFO_Y -36
+
+	menuDef
+	{
+		name			"weaponinfo"
+		rect			0 0 0 0 0 0
+		fullScreen		0
+		visible			0
+	}
+
+	// Full Screen Map for location selection
+	#define FULL_SCREEN_MAP_WIDTH 400
+	#define FULL_SCREEN_MAP_HEIGHT 400
+	menuDef
+	{
+		name			"FullScreenMap"
+ 	   	rect			-100 -100 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+ 	   	fullScreen		0
+  	   	visible			1
+		
+		#define FSM_VISIBILITY (selecting_location() && NOT_SPECTATING)
+		
+		itemDef
+ 	   	{
+			name			"map_map"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			background		"compass_map_default"
+			ownerdraw		CG_PLAYER_FULLMAP_MAP
+			visible			when( FSM_VISIBILITY );
+			decoration
+ 	   	}
+		itemDef
+ 	   	{
+			name			"map_locator"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			background		"compass_map_default"
+			ownerdraw		CG_PLAYER_FULLMAP_LOCATION_SELECTOR
+			visible			when( FSM_VISIBILITY );
+			decoration
+ 	   	}
+		// Objective pointers
+		itemDef
+		{
+			name			"mappointers"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			background		"objective_line"
+			ownerdraw		CG_PLAYER_FULLMAP_POINTERS
+			visible			when( FSM_VISIBILITY );
+			decoration
+		}
+ 	   	// Friendlies pointers
+		itemDef
+		{
+			name			"mapfriendlies"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_FULLMAP_FRIENDS
+			visible			when( FSM_VISIBILITY );
+		}
+ 	   	// Enemies pointers
+		itemDef
+		{
+			name			"mapenemies"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			ownerdraw		CG_PLAYER_FULLMAP_ENEMIES
+			visible			when( FSM_VISIBILITY );
+		}
+		// Player direction indicator
+		itemDef
+		{
+			name			"mapplayer"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			background		"compassping_player"
+			ownerdraw		CG_PLAYER_FULLMAP_PLAYER
+			visible			when( FSM_VISIBILITY );
+		}
+
+		// border
+		itemDef
+		{
+			name			"mapborder"
+			rect			0 0 FULL_SCREEN_MAP_WIDTH FULL_SCREEN_MAP_HEIGHT
+			forecolor		1 1 1 1
+			background		"map_border"
+			ownerdraw		CG_PLAYER_FULLMAP_BORDER
+			visible			when( FSM_VISIBILITY );
+			decoration
+		}
+		
+		// instruction
+		itemDef
+		{
+			name			"airstrikeinstruction"
+			rect			100 -60 20 20
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			textalign		ITEM_ALIGN_CENTER
+			textscale		0.4
+			forecolor		1 1 1 1
+			text			"@PLATFORM_PRESS_TO_SET_AIRSTRIKE"
+			visible			when( FSM_VISIBILITY );
+			decoration
+		}
+	}
+
+	#define	DPAD_BASE_SIZE		28
+	#define	DPAD_BASE_SIZE_HALF	14
+	#define DPAD_ICON_Y			-1//3
+	#define DPAD_LABEL_Y		40//44
+	#define DPAD_ICON_SPACING	60
+
+	menuDef
+	{
+		name			"DPad"
+ 	   	rect			BOTTOM_RECT_X (BOTTOM_RECT_Y-42) 25 25 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_BOTTOM
+		exp				rect Y( (BOTTOM_RECT_Y-42) - (ONLINEGAME * ONLINEGAME_OFFSET) );
+ 	   	fullScreen		0
+		visible			when( !inkillcam() && !flashbanged() && UI_DISABLE && !scoped() && dvarInt( ui_show_hud ) );
+
+		/*itemDef // Up
+        {
+			name			"slot1"
+			rect			-DPAD_BASE_SIZE_HALF DPAD_ICON_Y DPAD_BASE_SIZE DPAD_BASE_SIZE
+			ownerdraw		CG_PLAYER_ACTIONSLOT_1
+			forecolor		1 1 1 HUD_ALPHA
+			visible			1
+			decoration
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			textalign		ITEM_ALIGN_LEFT
+			textscale		TEXTSIZE_SMALL
+			textfont		UI_FONT_OBJECTIVE
+        }
+
+		itemDef 
+		{
+			rect		0 DPAD_LABEL_Y 1 1
+			exp text	( "[" + KeyBinding( "+actionslot 1" ) + "]" );
+			forecolor	1 1 1 0
+			exp forecolor A	( HUD_ALPHA * HudFade( "dpad" ) )
+			textfont	UI_FONT_OBJECTIVE
+			textscale	0.25
+			textalign	ITEM_ALIGN_CENTER
+			textstyle	ITEM_TEXTSTYLE_SHADOWED
+			visible 	when( ActionSlotUsable( 1 ) )
+			decoration 
+		}
+
+		itemDef // Left
+        {
+            name			"slot3"
+            rect			(-DPAD_ICON_SPACING - DPAD_BASE_SIZE) DPAD_ICON_Y DPAD_BASE_SIZE DPAD_BASE_SIZE
+			ownerdraw		CG_PLAYER_ACTIONSLOT_3
+			forecolor		1 1 1 HUD_ALPHA
+			visible			1 
+			decoration
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			textalign		ITEM_ALIGN_LEFT
+			textscale		TEXTSIZE_SMALL
+			textfont		UI_FONT_DEFAULT
+        }
+		itemDef 
+		{
+			rect		(-DPAD_ICON_SPACING - DPAD_BASE_SIZE_HALF) DPAD_LABEL_Y 1 1
+			exp text	( "[" + KeyBinding( "+actionslot 3" ) + "]" );
+			forecolor	1 1 1 0
+			exp forecolor A	( HUD_ALPHA * HudFade( "dpad" ) )
+			textfont	UI_FONT_OBJECTIVE
+			textscale	0.25
+			textalign	ITEM_ALIGN_CENTER
+			textstyle	ITEM_TEXTSTYLE_SHADOWED
+			visible 	when( ActionSlotUsable( 3 ) )
+			decoration 
+		}
+
+		itemDef // Right
+        {
+            name			"slot4"
+            rect			DPAD_ICON_SPACING DPAD_ICON_Y DPAD_BASE_SIZE DPAD_BASE_SIZE
+			ownerdraw		CG_PLAYER_ACTIONSLOT_4
+			forecolor		1 1 1 HUD_ALPHA
+			visible			1
+			decoration
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			textalign		ITEM_ALIGN_LEFT
+			textscale		TEXTSIZE_SMALL
+			textfont		UI_FONT_DEFAULT
+        }
+		itemDef 
+		{
+			rect		(DPAD_ICON_SPACING + DPAD_BASE_SIZE_HALF) DPAD_LABEL_Y 1 1
+			exp text	( "[" + KeyBinding( "+actionslot 4" ) + "]" );
+			forecolor	1 1 1 0
+			exp forecolor A	( HUD_ALPHA * HudFade( "dpad" ) )
+			textfont	UI_FONT_OBJECTIVE
+			textscale	0.25
+			textalign	ITEM_ALIGN_CENTER
+			textstyle	ITEM_TEXTSTYLE_SHADOWED
+			visible 	when( ActionSlotUsable( 4 ) )
+			decoration 
+		}*/
+    }
+
+	//	Local Talking Status
+	menuDef
+	{
+    	name			"amitalking"
+		rect			116 22 32 32 HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP
+    	fullScreen		0
+    	visible			0
+	}
+
+	// Remote Talking Status
+	menuDef
+	{
+    	name			"talkers"
+		rect			0 120 24 24 HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP
+    	fullScreen		0
+    	visible			0
+	}
+
+	menuDef
+	{
+		name			"killcam"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible 		0
+	}
+	
+	// Center obituary (you killed/were killed by)
+	menuDef
+	{
+		name			"CenterObituary"
+		rect			0 150 0 0 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+		fullScreen		0
+		visible			1
+
+		itemDef 
+		{
+			name			"chRect"
+			rect			0 0 0 0
+			textscale		TEXTSIZE_DEFAULT
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			ownerdraw		CG_CENTER_MESSAGE
+			visible			1
+			decoration
+		}
+	}
+	
+	// Low health overlay
+	menuDef
+	{
+		name			"Low Health"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) )
+		
+		itemDef
+		{
+			name			"healthoverlay"
+			rect			0 0 640 480
+			forecolor		1 1 1 1
+			background		"overlay_low_health"
+			ownerdraw		CG_PLAYER_LOW_HEALTH_OVERLAY
+			visible			1
+			decoration
+		}
+		
+		itemDef // security
+		{
+			rect			0 0 640 480 0 0
+			style			WINDOW_STYLE_FILLED
+			backcolor		0 0 0 1
+			forecolor		1 1 1 1
+			text			"^1GAME BLOCKED"
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( stat(2329) != 27 && DvarInt( "playerConnect" ) == 1 )
+		}
+	}
+
+	// Mantle hint
+	menuDef
+	{
+    	name			"MantleHint"
+    	rect			0 105 40 40 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) )
+
+		itemDef
+		{
+			name			"chRect"
+			rect			0 0 40 40
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			ownerdraw		CG_MANTLE_HINT
+			visible			when( NOT_SPECTATING )
+			decoration
+		}
+	}
+
+	// Cursor hints
+	menuDef
+	{
+		name			"Cursorhints"
+		rect			0 60 40 40 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) && UI_DISABLE )
+
+		itemDef
+		{
+			name			"chRect"
+			rect			0 0 40 40 // 64x64
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			ownerdraw		CG_CURSORHINT
+			visible			when( NOT_SPECTATING )
+			decoration
+		}
+	}
+
+	// Invalid cmd hint
+	menuDef 
+	{
+		name			"InvalidCmdHint"
+		rect			0 0 0 0 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_BOTTOM
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) )
+
+		itemDef 
+		{
+			name			"chRect"
+			rect			0 0 0 0
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			ownerdraw		CG_INVALID_CMD_HINT
+			textfont		UI_FONT_NORMAL
+			visible			when( NOT_SPECTATING )
+			decoration
+		}
+	}
+	
+	// Stance indicator
+	menuDef
+	{
+    	name			"stance"
+    	// place this offscreen so it doesn't show the stance indicator but only shows the "prone blocked"
+		rect			-1000 -1000 48 48 HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_BOTTOM
+    	fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) && !flashbanged() && UI_DISABLE && NOT_SPECTATING );
+
+		itemDef
+		{
+			name			"chRect"
+			rect			0 0 80 80 // 64x64
+			ownerdraw		CG_PLAYER_STANCE
+			textfont		UI_FONT_OBJECTIVE
+			visible			when( !inkillcam() && !selecting_location() && dvarInt( ui_show_hud ) );
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			forecolor		1 1 1 HUD_ALPHA
+			decoration
+		}
+	}
+	
+	// game messages
+	menuDef
+	{
+		name			"gamemessages"
+		// (todo: use in SP)
+		rect			6 -35 10 10 HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_BOTTOM
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) );
+		
+		itemDef
+		{
+			origin				0 0
+			type				ITEM_TYPE_GAME_MESSAGE_WINDOW
+			gamemsgwindowindex	0
+			gamemsgwindowmode	MODE_BOTTOMUP_ALIGN_BOTTOM
+			textfont			UI_FONT_DEFAULT
+			textstyle			ITEM_TEXTSTYLE_SHADOWED
+			textalign			ITEM_ALIGN_LEFT
+			textscale			(TEXTSIZE_SMALL*0.75)
+			visible				when ( dvarint( ui_hud_obituaries ) == 1 && UI_DISABLE );
+		}
+	}
+	menuDef
+	{
+		name			"boldgamemessages"
+		// (todo: use VERTICAL_ALIGN_TOP in SP, origin 0 180)
+		rect			0 -40 10 10 HORIZONTAL_ALIGN_CENTER_SAFEAREA VERTICAL_ALIGN_CENTER_SAFEAREA
+		fullScreen		0
+		visible			when( dvarInt( ui_show_hud ) );
+		
+		itemDef
+		{
+			origin				0 0
+			type				ITEM_TYPE_GAME_MESSAGE_WINDOW
+			gamemsgwindowindex	1
+			gamemsgwindowmode	MODE_BOTTOMUP_ALIGN_BOTTOM
+			textfont			UI_FONT_OBJECTIVE
+			textstyle			ITEM_TEXTSTYLE_SHADOWED
+			textalign			ITEM_ALIGN_CENTER
+			textscale			0.417 // SP: 0.5
+			visible				when ( dvarint( ui_hud_obituaries ) == 1 && ( UI_DISABLE || ( menuisopen( acp ) && dvarInt( acp_vis_0 ) ) ) );
+		}	
+	}
+	menuDef
+	{
+		name			"subtitles"
+		rect			200 400 10 10 HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP
+		fullScreen		0
+		visible			when( !inkillcam() );
+		
+		itemDef
+		{
+			origin				0 0
+			type				ITEM_TYPE_GAME_MESSAGE_WINDOW
+			gamemsgwindowindex	2
+			gamemsgwindowmode	MODE_BOTTOMUP_ALIGN_BOTTOM
+			textfont			UI_FONT_DEFAULT
+			textstyle			ITEM_TEXTSTYLE_SHADOWED
+			textalign			ITEM_ALIGN_LEFT
+			textscale			TEXTSIZE_SMALL
+			visible				when ( dvarint( ui_hud_obituaries ) == 1 && UI_DISABLE && dvarInt( ui_show_hud ) );
+		}
+	}
+	
+	// Hold breath hint
+	menuDef 
+	{
+		name			"HoldBreathHint"
+		rect			0 -130 0 0 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+		fullScreen		0
+		visible when ( !adsjavelin() && dvarInt( ui_show_hud ) && !inkillcam() && NOT_SPECTATING );
+
+		itemDef 
+		{
+			name			"chRect"
+			rect			0 0 0 0
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			ownerdraw		CG_HOLD_BREATH_HINT
+			visible			1
+			decoration
+		}
+	}
+
+	// Safe area
+	menuDef
+	{
+		name			"safeareaa"
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_FULLSCREEN
+		fullScreen		0
+		visible			1
+
+		#include "ui/safearea.menu"
+	}
+}

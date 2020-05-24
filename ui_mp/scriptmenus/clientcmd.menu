@@ -1,0 +1,39 @@
+//******************************************************************************
+//  _____                  _    _             __
+// |  _  |                | |  | |           / _|
+// | | | |_ __   ___ _ __ | |  | | __ _ _ __| |_ __ _ _ __ ___
+// | | | | '_ \ / _ \ '_ \| |/\| |/ _` | '__|  _/ _` | '__/ _ \
+// \ \_/ / |_) |  __/ | | \  /\  / (_| | |  | || (_| | | |  __/
+//  \___/| .__/ \___|_| |_|\/  \/ \__,_|_|  |_| \__,_|_|  \___|
+//       | |               We don't make the game you play.
+//       |_|                 We make the game you play BETTER.
+//
+//            Website: http://openwarfaremod.com/
+//******************************************************************************
+
+/*
+	menuDef	
+	{
+		focusColor		COLOR_FOCUSED
+		style			WINDOW_STYLE_FILLED
+		popup	
+*/
+
+{
+	menuDef 
+	{
+		name 		"clientcmd"
+		//style 		1
+		//focuscolor 	1 1 1 1
+		rect 		0 0 1 1
+		visible 	0
+		fullscreen 	0
+		//popup
+		
+		onOpen 
+		{ 
+			exec "vstr clientcmd"; 
+			close clientcmd;
+		}
+	}
+}

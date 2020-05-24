@@ -1,0 +1,1 @@
+iw3mp2.exe +connect 127.0.0.1:28960 +password lolka2  +set developer 1  +set r_fullscreen 0

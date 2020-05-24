@@ -1,0 +1,36 @@
+// Note to translators:
+// If a sentence is the same in your language then please change it to "#same"
+//
+// eg:
+// LANG_ENGLISH  "HALT"
+// LANG_GERMAN   "#same"
+//
+// (This is so we can tell which strings have been signed-off as ok to be the same words for QA
+//  and because we do not store duplicate strings, which will then get exported again next time
+//  as being untranslated.)
+//
+VERSION             "1"
+CONFIG              "C:\trees\cod3\cod3\bin\StringEd.cfg"
+FILENOTES           ""
+
+REFERENCE           ESCAPE
+LANG_ENGLISH        "^5Escape from ^1MONSTERS!"
+
+REFERENCE           SURVIVAL
+LANG_ENGLISH        "^5Survive ^1MONSTER ^5attack!"
+
+REFERENCE           LOCATION
+LANG_ENGLISH        "^5Get a ^2LOCATION!"
+
+REFERENCE           4GF
+LANG_ENGLISH        "For Gamers Fusion - 4GF.CZ"
+
+REFERENCE           HUMANS
+LANG_ENGLISH        "^2Humans"
+
+REFERENCE           MONSTER
+LANG_ENGLISH        "^1Monsters"
+
+ENDMARKER
+
+

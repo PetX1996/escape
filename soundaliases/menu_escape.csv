@@ -1,0 +1,5 @@
+name,sequence,file,vol_min,vol_max,vol_mod,pitch_min,pitch_max,dist_min,dist_max,channel,type,probability,loop,masterslave,loadspec,subtitle,compression,secondaryaliasname,volumefalloffcurve,startdelay,speakermap,reverb,lfe percentage,center percentage,platform,envelop_min,envelop_max,envelop percentage
+
+music_connect_mp,,music/loading_01.mp3,1,,music,,,,,menu,streamed,,looping,,menu,,,,,,music,,,,,,,
+
+pre_endround,,music/preendround.mp3,1,,music,,,,,menu,streamed,,looping,,menu,,,,,,music,,,,,,,

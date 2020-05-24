@@ -1,0 +1,102 @@
+// ============================
+// FIGURE
+// ============================
+material,icon_body_e_nico
+xmodel,playermodel_GTA_IV_NICO
+
+material,icon_body_e_sas_supp
+xmodel,body_mp_sas_urban_support
+
+material,icon_body_e_ada
+xmodel,escape_body_ada
+
+
+xmodel,viewhands_black_kit
+
+// ============================
+// WEAPONS
+// ============================
+// briefcase_bomb_mp - SA1911
+// ==================================================
+xmodel,kc_weapon_sa1911
+xmodel,kc_weapon_sa1911_w
+
+material,hud_sa1991
+material,weapon_sa1911
+
+// cobra_20mm_mp - MK22
+// ==================================================
+xmodel,kc_weapon_mk22
+xmodel,kc_weapon_mk22_w
+
+material,hud_mk22
+material,weapon_mk22
+
+// beretta_silencer_mp - Five seven
+// ==================================================
+xmodel,kc_weapon_57
+xmodel,kc_weapon_57_w
+
+material,hud_five7
+material,weapon_five7
+
+// usp_silencer_mp - Kimber
+// ==================================================
+xmodel,kc_weapon_kimber
+xmodel,kc_weapon_kimber_w
+
+material,hud_kimber
+material,weapon_kimber
+
+// colt45_silencer_mp - MW2 Magnum
+// ==================================================
+xmodel,viewmodel_mw2_magnum
+xmodel,worldmodel_mw2_magnum
+
+xanim,viewmodel_mw2_magnum_ADS_down
+xanim,viewmodel_mw2_magnum_ADS_up
+xanim,viewmodel_mw2_magnum_fire
+xanim,viewmodel_mw2_magnum_idle
+xanim,viewmodel_mw2_magnum_pullout
+xanim,viewmodel_mw2_magnum_putaway
+xanim,viewmodel_mw2_magnum_reload
+xanim,viewmodel_mw2_magnum_sprint_in
+xanim,viewmodel_mw2_magnum_sprint_loop
+xanim,viewmodel_mw2_magnum_sprint_out
+
+material,hud_mw2_magnum
+material,weapon_mw2_magnum
+
+sound,magnum_mw2,,all_mp
+
+// skorpion_acog_mp - Glock
+// ==================================================
+xmodel,viewmodel_glock_mw2
+xmodel,viewmodel_glock_mw2_silencer
+xmodel,weapon_glock_mp
+xmodel,weapon_glock_silencer
+
+material,hud_glock
+material,weapon_glock
+
+sound,glock,,all_mp
+
+// skorpion_reflex_mp - T850
+// ==================================================
+xmodel,kc_weapon_t850
+xmodel,kc_weapon_t850_w
+
+material,hud_taurus
+material,weapon_taurus
+
+// ============================
+// FIRSTPERK
+// ============================
+
+// ============================
+// SECONDPERK
+// ============================
+
+// ============================
+// THIRDPERK
+// ============================

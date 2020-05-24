@@ -1,0 +1,6 @@
+name,sequence,file,vol_min,vol_max,vol_mod,pitch_min,pitch_max,dist_min,dist_max,channel,type,probability,loop,masterslave,loadspec,subtitle,compression,secondaryaliasname,volumefalloffcurve,startdelay,speakermap,reverb,lfe percentage,center percentage,platform,envelop_min,envelop_max,envelop percentage,conversion
+
+# Ballistic Knife
+weap_bknife_fire_plr,,weps/ballistic_knife/weap_bknife_fire.wav,1,1,wpnplyr,1,1,500000,,local,,,,0.85,,,,,weapon2,,,,
+weap_bknife_fire_npc,,weps/ballistic_knife/weap_bknife_fire.wav,0.56,0.7,wpnai,1,1,35,10920,weapon,,,,0.7,all_mp,,,,weapon4
+weap_bknife_reload_knife_load,,weps/ballistic_knife/weap_bknife_reload.wav,1,1,wpnplyr,1,1,7,500,reload2d,,,,0.85,,,,,weapon2,100

@@ -1,0 +1,21 @@
+// briefcase_bomb_defuse_mp - Ballistic knife
+// ==================================================
+xmodel,viewmodel_ballistic_knife_w_parabolic
+xmodel,weapon_ballistic_knife
+xmodel,viewmodel_ballistic_blade
+
+xanim,viewmodel_b_knife_fire
+xanim,viewmodel_b_knife_first_raise
+xanim,viewmodel_b_knife_idle
+xanim,viewmodel_b_knife_melee_swipe
+xanim,viewmodel_b_knife_melee_stick
+xanim,viewmodel_b_knife_pullout
+xanim,viewmodel_b_knife_pullout_quick
+xanim,viewmodel_b_knife_putaway
+xanim,viewmodel_b_knife_putaway_quick
+xanim,viewmodel_b_knife_reload
+xanim,viewmodel_b_knife_sprint_in
+xanim,viewmodel_b_knife_sprint_loop
+xanim,viewmodel_b_knife_sprint_out
+
+sound,ballistic,,all_mp

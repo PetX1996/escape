@@ -1,0 +1,107 @@
+#include "ui_mp/macro_global.inc"
+
+{
+	menuDef
+	{	
+		name			"team_marinesopfor"
+		style			WINDOW_STYLE_FILLED
+		focuscolor		COLOR_FOCUSED
+		//soundloop 		"music_connect_mp"
+		//backcolor		1 1 1 1
+		//background		"menu_class_b"
+		blurworld		1.5
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN 0
+		
+		onEsc
+		{
+			close self;
+			//close "team_marinesopfor";
+		}
+		onOpen
+		{
+			//focusFirst;
+			//setfocus "button_large_1";
+			execnow "set MAIN_sel 10";
+			exec "exec client_cfg/loop.cfg";
+			scriptMenuResponse "teamselect_open";
+			
+			execNow "set VOTING_sel 20; set MAIN_visInfo 1; set MAIN_infoP 0; exec client_cfg/mainInfo.cfg";
+		}
+		onClose
+		{
+			scriptMenuResponse "teamselect_close";
+		}
+		
+		#include "ui_mp/main_ingame.inc"
+		
+		#include "ui_mp/main_ingame_info.inc"
+		
+		#include "ui_mp/main_ingame_rank.inc"
+		
+		#include "ui_mp/main_ingame_voting.inc"
+		
+		/*
+		//hlavne tlacitka
+		MENU_LARGE_BUTTON(1, "menu_class_e", 15 34 137 140, scriptMenuResponse "humans"; , execnow "set ui_button_info @ESCAPE_CLASS_TEAM_H";, !dvarint(ui_allow_monsters))
+		MENU_LARGE_BUTTON(2, "menu_class_m", 167 34 137 140, scriptMenuResponse "monsters"; , execnow "set ui_button_info @ESCAPE_CLASS_TEAM_M";, dvarint(ui_allow_monsters))
+
+		MENU_LARGE_BUTTON(3, "menu_class_spect", 15 191 137 140, scriptMenuResponse "spectator"; , execnow "set ui_button_info @ESCAPE_CLASS_TEAM_SPEC";, 1)
+		MENU_LARGE_BUTTON(4, "menu_class_help", 167 191 137 140, scriptMenuResponse "open:help"; , execnow "set ui_button_info @ESCAPE_CLASS_HELP";, 1)
+		
+		MENU_LARGE_BUTTON(5, "menu_class_e_e", 335 34 137 140, scriptMenuResponse "c_open_allies"; , execnow "set ui_button_info @ESCAPE_CLASS_MODIFY_H";, 1)
+		MENU_LARGE_BUTTON(6, "menu_class_m_e", 487 34 137 140, scriptMenuResponse "c_open_axis"; , execnow "set ui_button_info @ESCAPE_CLASS_MODIFY_M";, 1)
+		//MENU_LARGE_BUTTON("5", "menu_class_help", -150 300 100 100, scriptMenuResponse "autoassign";)
+		
+		//informacie o aktualne vybranej polozke
+		MENU_TEXT(15 357 500 20, ITEM_ALIGN_MIDDLE_LEFT, dvarstring( ui_button_info ), TEXTSIZE_SMALL, 1 1 1 1, 1 )
+		MENU_SHADER(5 362 10 10, "ui_arrow_right", 1 1 1 0.8, 1 )
+		
+		//spodne tlacitka
+		MENU_SMALL_BUTTON(7, "Options", 30 386 140 60, open main_options; execnow "set ui_allow_graphic_change 0"; close self;, execnow "set ui_button_info @ESCAPE_CLASS_OPTIONS";, 1)
+		MENU_SMALL_BUTTON(8, "Controls", 175 386 140 60, open main_controls; close self;, execnow "set ui_button_info @ESCAPE_CLASS_CONTROLS";, 1)
+		MENU_SMALL_BUTTON(9, "Escape", 330 386 140 60, scriptMenuResponse "open:options_escape"; , execnow "set ui_button_info @ESCAPE_CLASS_CONTROLS";, 1)
+		MENU_SMALL_BUTTON(10, "Quit", 475 386 140 60, open popup_endgame; , execnow "set ui_button_info @ESCAPE_CLASS_QUIT";, 1)*/
+	}
+	
+	#include "ui_mp/common_macro.inc"
+
+	#define CHOICE_X_START			0
+	#define CHOICE_Y_START			150
+
+	#define CHOICE_GROUP			"quit_game"
+	#define CHOICE_SEP_1			3
+	#define CHOICE_SEP_2			5
+
+	#define STYLE_PC	1
+	#include "ui_mp/menustyle.inc"
+	#include "ui/choices_setup_common.menu"
+
+	#include "ui_mp/popupstyle.inc"	
+	#include "ui/choices_setup_popmenu.menu"
+		
+	#undef CHOICE_SIZE_X
+	#define CHOICE_SIZE_X	320
+	
+	#undef CHOICE_HORIZONTAL_ALIGN
+	#define CHOICE_HORIZONTAL_ALIGN	HORIZONTAL_ALIGN_CENTER
+	#undef CHOICE_VERTICAL_ALIGN
+	#define CHOICE_VERTICAL_ALIGN	VERTICAL_ALIGN_CENTER
+	
+	menuDef
+	{
+		CENTER_POPUP_SETUP( popup_classteam, 4, execNow "set MAIN_sel 10";, 1 )
+
+		CHOICE_POPMENU_TITLE( "Create a Class" )
+		CHOICE_BUTTON( 3, "Human", scriptMenuResponse "c_open_allies"; )
+		CHOICE_BUTTON( 4, "Monster", scriptMenuResponse "c_open_axis"; )
+	}
+	
+	menuDef
+	{
+		CENTER_POPUP_SETUP( popup_quit, 4, execNow "set MAIN_sel 10";, 1 )
+
+		CHOICE_POPMENU_TITLE( "@MENU_ARE_YOU_SURE_QUIT" )
+		CHOICE_BUTTON( 3, "@MENU_YES", close self; exec "disconnect"; )
+		CHOICE_BUTTON( 4, "@MENU_NO", close self; execNow "set MAIN_sel 10"; )
+	}
+}

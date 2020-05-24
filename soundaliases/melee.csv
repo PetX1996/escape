@@ -1,0 +1,8 @@
+name,sequence,file,vol_min,vol_max,vol_mod,pitch_min,pitch_max,dist_min,dist_max,channel,type,probability,loop,masterslave,loadspec,subtitle,compression,secondaryaliasname,volumefalloffcurve,startdelay,speakermap,reverb,lfe percentage,center percentage,platform,envelop_min,envelop_max,envelop percentage,conversion
+#AXE
+melee_axe_small,,weapons/axe/axe_fly.wav,0.9,1,na,1.05,1.1,100,250,weapon,,,,,,,,,,,,,,,,,,
+melee_axe_swing_plr,,weapons/axe/axe_fly.wav,0.9,1,na,0.95,1.05,100,250,weapon,,,,,,,,,,,,,,,,50,100,0.55
+
+#SHOVE
+melee_shove_small,,weapons/shove/shove_fly.wav,0.9,1,na,1.05,1.1,100,250,weapon,,,,,,,,,,,,,,,,,,
+melee_shove_swing_plr,,weapons/shove/shove_fly.wav,0.9,1,na,0.95,1.05,100,250,weapon,,,,,,,,,,,,,,,,50,100,0.55

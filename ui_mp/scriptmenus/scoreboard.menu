@@ -1,0 +1,201 @@
+#include "ui/menudef.h"
+
+#ifdef PC
+	#define 	SCOREBAR_OFFSET 0 4
+#else
+	#define 	SCOREBAR_OFFSET 0 0
+#endif	
+
+{	
+	menuDef  // Stub: the scoreboard is controlled by code
+	{
+		name			"scoreboard"
+		rect			0 0 640 480
+		onEsc 
+		{
+			close scoreboard;
+		}
+
+		onClose
+		{
+			exec "set cg_hudChatPosition 5 204";
+			scriptMenuResponse "scoreboard_close";
+		}
+		onOpen
+		{
+			exec "set cg_hudChatPosition 5 204; exec client_cfg/loop.cfg";    //100
+			scriptMenuResponse "scoreboard_open";
+		}
+		
+		itemDef
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 0 640 2 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar"
+			forecolor		1 1 1 1
+			visible			1
+			decoration
+		}
+		itemDef	
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 2 640 1 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar"
+			forecolor		0 0 0 0.5
+			visible			1
+			decoration
+		}	
+		
+		itemDef 
+		{ 
+			style			WINDOW_STYLE_SHADER 
+			rect			0 3 640 18 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP 
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar" 
+			forecolor		0.1 0.1 0.1 1 
+			visible			1
+			decoration 
+		} 
+		
+		itemDef	
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 21 640 1 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar"
+			forecolor		0 0 0 0.5
+			visible			1
+			decoration
+		}
+		
+		itemDef
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 22 640 2 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar"
+			forecolor		1 1 1 1
+			visible			1
+			decoration
+		}
+
+		/*itemDef
+		{
+			style			WINDOW_STYLE_SHADER
+			rect			0 22 640 2 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP
+			origin			SCOREBAR_OFFSET
+			background		"line_horizontal_scorebar"
+			forecolor		1 1 1 1
+			visible			1
+			decoration
+		}	*/
+		
+		#define TEXT_COUNT 3
+		#define TEXT_TIMELENGTH 5
+		#define SCOREBAR_TEXT( sText, sColor, vis ) \
+			itemDef \
+			{ \
+				style			WINDOW_STYLE_EMPTY \
+				rect			0 3 640 18 HORIZONTAL_ALIGN_FULLSCREEN VERTICAL_ALIGN_TOP \
+				origin			SCOREBAR_OFFSET \
+				exp				text( sText ) \
+				textscale		FONTSCALE_SMALL \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				forecolor		sColor \
+				visible			when( (MilliSeconds()/1000) % (TEXT_TIMELENGTH*TEXT_COUNT) >= ((vis-1)*TEXT_TIMELENGTH) && (MilliSeconds()/1000) % (TEXT_TIMELENGTH*TEXT_COUNT) < (vis*TEXT_TIMELENGTH) ) \
+				decoration \
+			} \
+
+		SCOREBAR_TEXT( "@ESCAPE_4GF", 1 1 1 1, 1 )
+		SCOREBAR_TEXT( gameTypeName(), 1 1 1 1, 2 )
+		SCOREBAR_TEXT( DvarString( "ui_modVerFull" ), 1 1 1 1, 3 )
+		
+		/* ============================================== */
+		#define TIME_VIS (timeLeft() <= 0)
+		#define	START_X	2
+		#define START_Y	30
+		#define	SIZE	36
+		#define SPACING	2
+		#define ICON_INFO( num, icon, info, vis ) \
+		itemDef \
+		{ \
+			rect			START_X (START_Y + ((SPACING+SIZE)*num)) SIZE SIZE HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP \
+			forecolor		1 1 1 1 \
+			style			WINDOW_STYLE_SHADER \
+			background		icon \
+			visible 		when( vis ) \
+			decoration \
+		} \
+		itemDef \
+		{ \
+			rect			(START_X+SIZE) (START_Y + ((SPACING+SIZE)*num)) SIZE SIZE HORIZONTAL_ALIGN_LEFT VERTICAL_ALIGN_TOP \
+			textscale		TEXTSIZE_SMALL \
+			textalign		ITEM_ALIGN_MIDDLE_LEFT \
+			forecolor		1 1 1 1 \
+			exp				text( info ); \
+			visible			when( vis ) \
+			decoration \
+		} \
+		
+		ICON_INFO( 0, "hud_clock", secondsAsCountdown( timeLeft() ), (timeLeft() > 0) )
+		ICON_INFO( 1, "faction_128_sas", DvarInt( hud_count_allies ), (timeLeft() > 0) )
+		ICON_INFO( 2, "faction_128_arab", DvarInt( hud_count_axis ), (timeLeft() > 0) )
+		
+		ICON_INFO( 0, "faction_128_sas", DvarInt( hud_count_allies ), (timeLeft() <= 0) )
+		ICON_INFO( 1, "faction_128_arab", DvarInt( hud_count_axis ), (timeLeft() <= 0) )
+		
+		/* =============================================== */		
+		//super admin
+		
+		#define ICON( x, y, material, name ) \
+		itemDef \
+		{ \
+			rect			(x + 24) (y + 16) 35 35 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER \
+			forecolor		1 1 1 1 \
+			style			WINDOW_STYLE_SHADER \
+			background		material \
+			visible 		1 \
+			decoration \
+		} \
+		itemDef \
+		{ \
+			type			ITEM_TYPE_TEXT \
+			rect			x y 83 20 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER \
+			text			name \
+			textfont		UI_FONT_NORMAL \
+			textscale		0.3333 \
+			textstyle		ITEM_TEXTSTYLE_SHADOWED \
+			textAlign		ITEM_ALIGN_MIDDLE_CENTER \
+			forecolor		COLOR_FOCUSED \
+			visible			1 \
+			decoration \
+		} \
+		
+		ICON( -249, -210, "hud_status_dev", "^9Developer" )
+		ICON( -166, -210, "hud_status_marshal2", "^5Server Admin" )
+		ICON( -83, -210, "hud_status_marshal3", "^1Senior Admin" )
+		ICON( 0, -210, "hud_status_marshal", "^3Admin" )
+		ICON( 83, -210, "hud_status_vip2", "^2VIP" )
+		ICON( 166, -210, "hud_status_sponzor", "^3Sponsor" )
+		
+		/* informacia o verzii */
+		/*
+		itemDef
+		{
+			type			ITEM_TYPE_TEXT
+			rect			0 480 640 0 HORIZONTAL_ALIGN_DEFAULT VERTICAL_ALIGN_DEFAULT
+			exp				text( dvarstring(ui_welcome_modinfo) );
+			textfont		UI_FONT_NORMAL
+			textscale		TEXTSIZE_SMALL
+			textstyle		ITEM_TEXTSTYLE_SHADOWED
+			textAlign		ITEM_ALIGN_CENTER
+			forecolor		COLOR_FOCUSED
+			visible			1
+			decoration		
+		}
+		*/
+	}
+
+}

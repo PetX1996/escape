@@ -1,0 +1,8 @@
+tree,D:\CoD4 Tvorba Map\Call of Duty 4 - Mod ESCAPE\
+mapname,mp_escape_factory
+developer,True
+developerscript,False
+cheats,True
+tab,1
+chkCustomCommandLine,True
+txtCustomCommandLine,+set fs_game mods/escape_test +exec escape.cfg +set scr_flying 1 +set g_gametype escape

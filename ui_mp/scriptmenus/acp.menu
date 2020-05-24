@@ -1,0 +1,497 @@
+#include "ui/menudef.h"	
+//#include "ui_mp/style.inc"
+
+// GLOBAL DEFINITIONS
+#define C_TRANSPARENT	0 0 0 0
+
+#define C_BLACKSCREEN	0 0 0 0.6
+#define C_BACKGROUND	0 0 0 0.75
+
+#define C_BTN_OFF		1 1 1 0.75
+#define C_BTN_ON		1 0.5 0 1
+
+#define C_HIGHLIGHT		1 0.5 0 0.25
+#define C_SELECTED		1 0.5 0 0.75
+
+#define C_TEXT			1 1 1 1
+#define C_TITLE			1 0.5 0 1
+
+// == responses ==
+// ACP_open
+// ACP_close
+// ACP_esc
+// ACP_secS_<num>
+// ACP_btn_<num>
+// ACP_next
+// ACP_prev
+// ACP_lnext
+// ACP_lprev
+// ACP_pLprev_<num>
+// ACP_pLnext_<num>
+
+// == dvars ==
+// ACP_vis1
+// ACP_lI
+// ACP_prev
+// ACP_next
+// ACP_btn<num>
+// ACP_t<num>
+// ACP_vis2
+// ACP_pT
+// ACP_pC
+// ACP_pLIC
+// ACP_pL<num>
+// ACP_pLI<num>
+
+#define PANEL_BACKGROUND( x, y, w, h, visInfo ) \
+	itemDef \
+	{ \
+		rect			x y w h 0 0 \
+		type			ITEM_TYPE_BUTTON \
+		style			WINDOW_STYLE_FILLED \
+		backcolor		C_BACKGROUND \
+		visible			visInfo \
+	} \
+
+#define PANEL_BORDER( x, y, w, h, visInfo ) \
+	itemDef \
+	{ \
+		rect			x y w h 0 0 \
+		style			WINDOW_STYLE_FILLED \
+		backcolor		C_HIGHLIGHT \
+		visible			visInfo \
+	} \
+	
+{
+	menuDef
+	{	
+		name			"acp"
+		style			WINDOW_STYLE_EMPTY
+		focuscolor		COLOR_FOCUSED
+		backcolor		1 1 1 0
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN 0
+
+		onEsc
+		{
+			scriptMenuResponse "ACP_esc";
+			//close self;
+		}
+		onOpen
+		{
+			scriptMenuResponse "ACP_open";
+
+			execNow "set ACP_secS 10; set ACP_vis0 0; set ACP_vis1 0; set ACP_vis2 0";
+		}
+		onClose
+		{	
+			scriptMenuResponse "ACP_close";
+		}
+		
+		#define VIS_BUTTONS DvarBool( "ACP_vis0" )
+		#define VIS_LIST DvarBool( "ACP_vis1" )
+		
+		#define LINE_SIZE 2
+		
+		#define BOTTOM_W 640
+		#define BOTTOM_H 30
+		#define BOTTOM_X 0
+		#define BOTTOM_Y (480 - BOTTOM_H)
+		
+		#define BOTTOM_BTN_COUNT 3
+		#define BOTTOM_BTN_W (BOTTOM_W / BOTTOM_BTN_COUNT)
+		
+		// bottom panel
+		PANEL_BACKGROUND( BOTTOM_X, BOTTOM_Y, BOTTOM_W, BOTTOM_H, 1 )
+		PANEL_BORDER( BOTTOM_X, BOTTOM_Y, BOTTOM_W, LINE_SIZE, 1 )
+		itemDef // pointer
+		{
+			rect			0 (BOTTOM_Y + LINE_SIZE) BOTTOM_BTN_W (BOTTOM_H - LINE_SIZE) 0 0
+			exp				rect X( BOTTOM_X + (DvarInt( "ACP_secS" ) * BOTTOM_BTN_W) );
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_HIGHLIGHT
+			visible			1
+		}
+		#define BOTTOM_BTN( i, i_s, name ) \
+			itemDef \
+			{ \
+				rect			(BOTTOM_X + (BOTTOM_BTN_W*i)) (BOTTOM_Y+LINE_SIZE) BOTTOM_BTN_W (BOTTOM_H-LINE_SIZE) 0 0 \
+				type			ITEM_TYPE_BUTTON \
+				style			WINDOW_STYLE_FILLED \
+				backcolor		C_TRANSPARENT \
+				forecolor		C_TEXT \
+				text			name \
+				textscale		FONTSCALE_NORMAL \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				visible			1 \
+				mouseEnter		{ setcolor backcolor C_HIGHLIGHT; } \
+				mouseExit		{ setcolor backcolor C_TRANSPARENT; } \
+				action			{ execNow "set ACP_vis0 1; set ACP_secS "i_s; scriptMenuResponse "ACP_secS_"i_s; } \
+			} \
+			
+		BOTTOM_BTN( 0, "0", "Maps" )
+		BOTTOM_BTN( 1, "1", "Players" )
+		BOTTOM_BTN( 2, "2", "Other" )
+		
+		#define RIGHT_W 140
+		#define RIGHT_H (480 - BOTTOM_H)
+		#define RIGHT_X (640 - RIGHT_W)
+		#define RIGHT_Y 0
+		
+		#define RIGHT_BTN_Y 30
+		#define RIGHT_BTN_H 30
+		
+		#define RIGHT_ARROW_W 28
+		#define RIGHT_ARROW_H RIGHT_ARROW_W
+		
+		// right panel
+		PANEL_BACKGROUND( RIGHT_X, RIGHT_Y, RIGHT_W, RIGHT_H, when( VIS_BUTTONS ) )
+		PANEL_BORDER( RIGHT_X, RIGHT_Y, LINE_SIZE, RIGHT_H, when( VIS_BUTTONS ) )
+		itemDef // prev btn
+		{
+			rect			RIGHT_X ((RIGHT_Y+RIGHT_H)-RIGHT_ARROW_H) RIGHT_ARROW_W RIGHT_ARROW_H 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_SHADER
+			background		"ui_arrow_left"
+			forecolor		C_BTN_OFF
+			visible			when( VIS_BUTTONS && DvarBool( "ACP_prev" ) )
+			mouseEnter		{ setcolor forecolor C_BTN_ON; }
+			mouseExit		{ setcolor forecolor C_BTN_OFF; }
+			action			{ scriptMenuResponse "ACP_prev"; }
+		}
+		itemDef // next btn
+		{
+			rect			((RIGHT_X+RIGHT_W)-RIGHT_ARROW_W) ((RIGHT_Y+RIGHT_H)-RIGHT_ARROW_H) RIGHT_ARROW_W RIGHT_ARROW_H 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_SHADER
+			background		"ui_arrow_right"
+			forecolor		C_BTN_OFF
+			visible			when( VIS_BUTTONS && DvarBool( "ACP_next" ) )
+			mouseEnter		{ setcolor forecolor C_BTN_ON; }
+			mouseExit		{ setcolor forecolor C_BTN_OFF; }
+			action			{ scriptMenuResponse "ACP_next"; }
+		}
+		#define RIGHT_BTN( i, i_s ) \
+			itemDef \
+			{ \
+				rect			(RIGHT_X+LINE_SIZE) (RIGHT_Y+RIGHT_BTN_Y+(RIGHT_BTN_H*i)) (RIGHT_W-LINE_SIZE) RIGHT_BTN_H 0 0 \
+				type			ITEM_TYPE_BUTTON \
+				style			WINDOW_STYLE_FILLED \
+				backcolor		C_TRANSPARENT \
+				forecolor		C_TEXT \
+				exp				text( DvarString( "ACP_btn"+i ) ); \
+				textscale		FONTSCALE_SMALL \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				visible			when( DvarString( "ACP_btn"+i ) != "" && VIS_BUTTONS ) \
+				mouseEnter		{ setcolor backcolor C_HIGHLIGHT; } \
+				mouseExit		{ setcolor backcolor C_TRANSPARENT; } \
+				action			{ scriptMenuResponse "ACP_btn_"i_s; } \
+			} \
+		
+		RIGHT_BTN( 0, "0" )
+		RIGHT_BTN( 1, "1" )
+		RIGHT_BTN( 2, "2" )
+		RIGHT_BTN( 3, "3" )
+		RIGHT_BTN( 4, "4" )
+		RIGHT_BTN( 5, "5" )
+		RIGHT_BTN( 6, "6" )
+		RIGHT_BTN( 7, "7" )
+		RIGHT_BTN( 8, "8" )
+		RIGHT_BTN( 9, "9" )
+		RIGHT_BTN( 10, "10" )
+		RIGHT_BTN( 11, "11" )
+		RIGHT_BTN( 12, "12" )
+		
+		// list
+		#define LIST_W (640-RIGHT_W)
+		#define LIST_H 26
+		#define LIST_X 0
+		#define LIST_Y (480-LIST_H-BOTTOM_H)
+		
+		#define LIST_ARROW_W (LIST_H-LINE_SIZE)
+		#define LIST_ARROW_H LIST_ARROW_W
+		
+		PANEL_BACKGROUND( LIST_X, LIST_Y, LIST_W, LIST_H, when( VIS_LIST ) )
+		PANEL_BORDER( LIST_X, LIST_Y, LIST_W, LINE_SIZE, when( VIS_LIST ) )
+		itemDef // item
+		{
+			rect			LIST_X (LIST_Y+LINE_SIZE) LIST_W (LIST_H-LINE_SIZE) 0 0
+			style			WINDOW_STYLE_EMPTY
+			forecolor		C_TEXT
+			exp				text( DvarString( "ACP_lI" ) );
+			textscale		FONTSCALE_SMALL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( VIS_LIST )
+			decoration
+		}
+		itemDef // prev
+		{
+			rect			(LIST_X+(LIST_W*0.25)-(LIST_ARROW_W*0.5)) (LIST_Y+LINE_SIZE) LIST_ARROW_W LIST_ARROW_H 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_SHADER
+			background		"ui_arrow_left"
+			forecolor		C_BTN_OFF
+			visible			when( VIS_LIST )
+			mouseEnter		{ setcolor forecolor C_BTN_ON; }
+			mouseExit		{ setcolor forecolor C_BTN_OFF; }
+			action			{ scriptMenuResponse "ACP_lprev"; }
+		}
+		itemDef // next
+		{
+			rect			(LIST_X+(LIST_W*0.75)-(LIST_ARROW_W*0.5)) (LIST_Y+LINE_SIZE) LIST_ARROW_W LIST_ARROW_H 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_SHADER
+			background		"ui_arrow_right"
+			forecolor		C_BTN_OFF
+			visible			when( VIS_LIST )
+			mouseEnter		{ setcolor forecolor C_BTN_ON; }
+			mouseExit		{ setcolor forecolor C_BTN_OFF; }
+			action			{ scriptMenuResponse "ACP_lnext"; }
+		}
+		
+		#define TEXT_X 0
+		#define TEXT_Y 0
+		#define TEXT_W 200
+		#define TEXT_H 15
+		
+		// left top text
+		#define TOP_TEXT( i ) \
+			itemDef \
+			{ \
+				rect			TEXT_X (TEXT_Y+(TEXT_H*i)) TEXT_W TEXT_H 0 0 \
+				style			WINDOW_STYLE_EMPTY \
+				forecolor		C_TEXT \
+				exp				text( DvarString( "ACP_t"+i ) ); \
+				textscale		0.3333 \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				textalignx		ITEM_ALIGN_X_MASK \
+				visible			1 \
+				decoration \
+			} \
+		
+		TOP_TEXT( 0 )
+		TOP_TEXT( 1 )
+		TOP_TEXT( 2 )
+		TOP_TEXT( 3 )
+		TOP_TEXT( 4 )
+		TOP_TEXT( 5 )
+		TOP_TEXT( 6 )
+		TOP_TEXT( 7 )
+		TOP_TEXT( 8 )
+		TOP_TEXT( 9 )
+		
+		// popup
+		#define VIS_POPUP_NOTICE ( DvarInt( "ACP_vis2" ) == 1 )
+		#define VIS_POPUP_LIST ( DvarInt( "ACP_vis2" ) == 2 )
+		
+		itemDef // blackscreen
+		{
+			rect			0 0 640 480 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_BLACKSCREEN
+			visible			when( VIS_POPUP_NOTICE || VIS_POPUP_LIST )
+		}
+		
+		#define POPUP_NOTICE_W 240
+		#define POPUP_NOTICE_H 120
+		#define POPUP_NOTICE_X ((640 - POPUP_NOTICE_W) * 0.5)
+		#define POPUP_NOTICE_Y ((480 - POPUP_NOTICE_H) * 0.5)
+		
+		#define POPUP_NOTICE_TITLE_X POPUP_NOTICE_X
+		#define POPUP_NOTICE_TITLE_Y POPUP_NOTICE_Y
+		#define POPUP_NOTICE_TITLE_W POPUP_NOTICE_W
+		#define POPUP_NOTICE_TITLE_H 24
+		
+		#define POPUP_NOTICE_BTN_W POPUP_NOTICE_W
+		#define POPUP_NOTICE_BTN_H 20
+		#define POPUP_NOTICE_BTN_X POPUP_NOTICE_X
+		#define POPUP_NOTICE_BTN_Y (POPUP_NOTICE_Y+POPUP_NOTICE_H-POPUP_NOTICE_BTN_H)
+		
+		#define POPUP_NOTICE_CONTENT_X POPUP_NOTICE_X
+		#define POPUP_NOTICE_CONTENT_Y (POPUP_NOTICE_Y+POPUP_NOTICE_TITLE_H)
+		#define POPUP_NOTICE_CONTENT_W POPUP_NOTICE_W
+		#define POPUP_NOTICE_CONTENT_H (POPUP_NOTICE_H-(POPUP_NOTICE_TITLE_H+POPUP_NOTICE_BTN_H))
+		
+		PANEL_BORDER( (POPUP_NOTICE_X-LINE_SIZE), (POPUP_NOTICE_Y-LINE_SIZE), (POPUP_NOTICE_W+(LINE_SIZE*2)), (POPUP_NOTICE_H+(LINE_SIZE*2)), when( VIS_POPUP_NOTICE ) )
+		PANEL_BACKGROUND( POPUP_NOTICE_X, POPUP_NOTICE_Y, POPUP_NOTICE_W, POPUP_NOTICE_H, when( VIS_POPUP_NOTICE ) )
+		/*
+		PANEL_BORDER( (POPUP_NOTICE_X-LINE_SIZE), (POPUP_NOTICE_Y-LINE_SIZE), (POPUP_NOTICE_W+(LINE_SIZE*2)), LINE_SIZE, when( VIS_POPUP_NOTICE ) ) // top
+		PANEL_BORDER( (POPUP_NOTICE_X-LINE_SIZE), (POPUP_NOTICE_Y+POPUP_NOTICE_H), (POPUP_NOTICE_W+(LINE_SIZE*2)), LINE_SIZE, when( VIS_POPUP_NOTICE ) ) // bottom
+		PANEL_BORDER( (POPUP_NOTICE_X-LINE_SIZE), POPUP_NOTICE_Y, LINE_SIZE, POPUP_NOTICE_H, when( VIS_POPUP_NOTICE ) ) // left
+		PANEL_BORDER( (POPUP_NOTICE_X+POPUP_NOTICE_W), POPUP_NOTICE_Y, LINE_SIZE, POPUP_NOTICE_H, when( VIS_POPUP_NOTICE ) ) // right*/
+		itemDef // title
+		{
+			rect			POPUP_NOTICE_TITLE_X POPUP_NOTICE_TITLE_Y POPUP_NOTICE_TITLE_W POPUP_NOTICE_TITLE_H 0 0
+			style			WINDOW_STYLE_EMPTY
+			forecolor		C_TITLE
+			exp				text( DvarString( "ACP_pT" ) );
+			textscale		FONTSCALE_NORMAL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( VIS_POPUP_NOTICE )
+			decoration
+		}
+		itemDef // content
+		{
+			rect			POPUP_NOTICE_CONTENT_X POPUP_NOTICE_CONTENT_Y POPUP_NOTICE_CONTENT_W POPUP_NOTICE_CONTENT_H 0 0
+			style			WINDOW_STYLE_EMPTY
+			forecolor		C_TEXT
+			exp				text( DvarString( "ACP_pC" ) );
+			textscale		0.3333
+			textalign		ITEM_ALIGN_TOP_LEFT
+			textalignx		ITEM_ALIGN_X_MASK
+			visible			when( VIS_POPUP_NOTICE )
+			decoration		autowrapped
+		}
+		itemDef // button
+		{
+			rect			POPUP_NOTICE_BTN_X POPUP_NOTICE_BTN_Y POPUP_NOTICE_BTN_W POPUP_NOTICE_BTN_H 0 0
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_TRANSPARENT
+			forecolor		C_TEXT
+			text			"OK"
+			textscale		FONTSCALE_SMALL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( VIS_POPUP_NOTICE )
+			mouseEnter		{ setcolor backcolor C_HIGHLIGHT; }
+			mouseExit		{ setcolor backcolor C_TRANSPARENT; }
+			action			{ scriptMenuResponse "ACP_pOK"; }
+		}
+		
+		#define POPUP_LIST_ITEM_COUNT DvarInt( "ACP_pLIC" )
+		#define POPUP_LIST_ITEM_H 40
+		#define POPUP_LIST_ITEM_SPACE 8
+		
+		#define POPUP_LIST_W 240
+		#define POPUP_LIST_H (POPUP_LIST_TITLE_H+POPUP_LIST_BTN_H+((POPUP_LIST_ITEM_H+POPUP_LIST_ITEM_SPACE)*POPUP_LIST_ITEM_COUNT))
+		#define POPUP_LIST_X ((640 - POPUP_LIST_W) * 0.5)
+		#define POPUP_LIST_Y ((480 - POPUP_LIST_H) * 0.5)
+		
+		#define POPUP_LIST_TITLE_X POPUP_LIST_X
+		#define POPUP_LIST_TITLE_Y POPUP_LIST_Y
+		#define POPUP_LIST_TITLE_W POPUP_LIST_W
+		#define POPUP_LIST_TITLE_H 24
+		
+		#define POPUP_LIST_BTN_W POPUP_LIST_W
+		#define POPUP_LIST_BTN_H 20
+		#define POPUP_LIST_BTN_X POPUP_LIST_X
+		#define POPUP_LIST_BTN_Y (POPUP_LIST_Y+POPUP_LIST_H-POPUP_LIST_BTN_H)
+		
+		#define POPUP_LIST_CONTENT_X POPUP_LIST_X
+		#define POPUP_LIST_CONTENT_Y (POPUP_LIST_Y+POPUP_LIST_TITLE_H)
+		#define POPUP_LIST_CONTENT_W POPUP_LIST_W
+		#define POPUP_LIST_CONTENT_H (POPUP_LIST_H-(POPUP_LIST_TITLE_H+POPUP_LIST_BTN_H))
+		
+		#define POPUP_LIST_ITEM_W POPUP_LIST_W
+		#define POPUP_LIST_ITEM_X POPUP_LIST_X
+		#define POPUP_LIST_ITEM_Y (POPUP_LIST_Y+POPUP_LIST_TITLE_H)
+		#define POPUP_LIST_ITEM_F 0.2
+
+		itemDef // border
+		{
+			rect			(POPUP_LIST_X-LINE_SIZE) 0 (POPUP_LIST_W+(LINE_SIZE*2)) 0 0 0
+			exp				rect Y( (POPUP_LIST_Y-LINE_SIZE) );
+			exp				rect H( (POPUP_LIST_H+(LINE_SIZE*2)) );
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_HIGHLIGHT
+			visible			when( VIS_POPUP_LIST )
+		}		
+		itemDef // bg
+		{
+			rect			POPUP_LIST_X 0 POPUP_LIST_W 0 0 0
+			exp				rect Y( POPUP_LIST_Y );
+			exp				rect H( POPUP_LIST_H );
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_BACKGROUND
+			visible			when( VIS_POPUP_LIST )
+		}
+		itemDef // title
+		{
+			rect			POPUP_LIST_TITLE_X 0 POPUP_LIST_TITLE_W POPUP_LIST_TITLE_H 0 0
+			exp				rect Y( POPUP_LIST_TITLE_Y );
+			style			WINDOW_STYLE_EMPTY
+			forecolor		C_TITLE
+			exp				text( DvarString( "ACP_pT" ) );
+			textscale		FONTSCALE_NORMAL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( VIS_POPUP_LIST )
+			decoration
+		}
+		#define POPUP_LIST_ITEM( i, i_s ) \
+			itemDef \
+			{ \
+				rect			POPUP_LIST_ITEM_X 0 POPUP_LIST_ITEM_W (POPUP_LIST_ITEM_H*POPUP_LIST_ITEM_F) 0 0 \
+				exp				rect Y( POPUP_LIST_ITEM_Y + ((POPUP_LIST_ITEM_H+POPUP_LIST_ITEM_SPACE)*i) ); \
+				style			WINDOW_STYLE_EMPTY \
+				forecolor		C_TEXT \
+				exp				text( DvarString( "ACP_pL"+i ) ); \
+				textscale		0.3 \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				visible			when( VIS_POPUP_LIST && i < POPUP_LIST_ITEM_COUNT ) \
+				decoration \
+			} \
+			itemDef \
+			{ \
+				rect			POPUP_LIST_ITEM_X 0 POPUP_LIST_ITEM_W (POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F)) 0 0 \
+				exp				rect Y( POPUP_LIST_ITEM_Y + ((POPUP_LIST_ITEM_H+POPUP_LIST_ITEM_SPACE)*i) + (POPUP_LIST_ITEM_H*POPUP_LIST_ITEM_F) ); \
+				style			WINDOW_STYLE_EMPTY \
+				forecolor		C_TEXT \
+				exp				text( DvarString( "ACP_pLI"+i ) ); \
+				textscale		FONTSCALE_SMALL \
+				textalign		ITEM_ALIGN_MIDDLE_CENTER \
+				visible			when( VIS_POPUP_LIST && i < POPUP_LIST_ITEM_COUNT ) \
+				decoration \
+			} \
+			itemDef \
+			{ \
+				rect			POPUP_LIST_ITEM_X 0 (POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F)) (POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F)) 0 0 \
+				exp				rect Y( POPUP_LIST_ITEM_Y + ((POPUP_LIST_ITEM_H+POPUP_LIST_ITEM_SPACE)*i) + (POPUP_LIST_ITEM_H*POPUP_LIST_ITEM_F) ); \
+				type			ITEM_TYPE_BUTTON \
+				style			WINDOW_STYLE_SHADER \
+				forecolor		C_BTN_OFF \
+				background		"ui_arrow_left" \
+				visible			when( VIS_POPUP_LIST && i < POPUP_LIST_ITEM_COUNT ) \
+				mouseEnter		{ setcolor forecolor C_BTN_ON; } \
+				mouseExit		{ setcolor forecolor C_BTN_OFF; } \
+				action			{ scriptMenuResponse "ACP_pLprev_"i_s; } \
+			} \
+			itemDef \
+			{ \
+				rect			(POPUP_LIST_ITEM_X+POPUP_LIST_ITEM_W-(POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F))) 0 (POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F)) (POPUP_LIST_ITEM_H*(1-POPUP_LIST_ITEM_F)) 0 0 \
+				exp				rect Y( POPUP_LIST_ITEM_Y + ((POPUP_LIST_ITEM_H+POPUP_LIST_ITEM_SPACE)*i) + (POPUP_LIST_ITEM_H*POPUP_LIST_ITEM_F) ); \
+				type			ITEM_TYPE_BUTTON \
+				style			WINDOW_STYLE_SHADER \
+				forecolor		C_BTN_OFF \
+				background		"ui_arrow_right" \
+				visible			when( VIS_POPUP_LIST && i < POPUP_LIST_ITEM_COUNT ) \
+				mouseEnter		{ setcolor forecolor C_BTN_ON; } \
+				mouseExit		{ setcolor forecolor C_BTN_OFF; } \
+				action			{ scriptMenuResponse "ACP_pLnext_"i_s; } \
+			} \		
+		
+		POPUP_LIST_ITEM( 0, "0" )
+		POPUP_LIST_ITEM( 1, "1" )
+		POPUP_LIST_ITEM( 2, "2" )
+		POPUP_LIST_ITEM( 3, "3" )
+		POPUP_LIST_ITEM( 4, "4" )
+		
+		itemDef // button
+		{
+			rect			POPUP_LIST_BTN_X 0 POPUP_LIST_BTN_W POPUP_LIST_BTN_H 0 0
+			exp				rect Y( POPUP_LIST_BTN_Y );
+			type			ITEM_TYPE_BUTTON
+			style			WINDOW_STYLE_FILLED
+			backcolor		C_TRANSPARENT
+			forecolor		C_TEXT
+			text			"OK"
+			textscale		FONTSCALE_SMALL
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			visible			when( VIS_POPUP_LIST )
+			mouseEnter		{ setcolor backcolor C_HIGHLIGHT; }
+			mouseExit		{ setcolor backcolor C_TRANSPARENT; }
+			action			{ scriptMenuResponse "ACP_pOK"; }
+		}		
+	}
+}

@@ -1,0 +1,188 @@
+#include "ui/menudef.h"
+
+// GLOBAL DEFINITIONS
+#define BG_BLACKSCREEN_COLOR 	0 0 0 0.6
+#define BG_BACK_COLOR 			0 0 0 0.75
+
+#define BTN_OFF			0 0 0 0
+#define BTN_HIGHLIGHT	0 1 1 0.25
+#define BTN_SELECTED	0 1 1 0.75
+
+#define TEXT_TITLE_COLOR 	0 1 1 1
+#define TEXT_NORMAL_COLOR 	1 1 1 1
+
+{
+	menuDef
+	{	
+		name			"VOTING"
+		style			WINDOW_STYLE_FILLED
+		focuscolor		COLOR_FOCUSED
+		blurworld		1.5
+		rect			0 0 640 480 HORIZONTAL_ALIGN_FULLSCREEN 0
+
+		onEsc
+		{
+			scriptMenuResponse "VOTING_esc";
+			//close "team_marinesopfor";
+		}
+		onOpen
+		{
+			//setDvar cl_bypassMouseInput "1";
+			scriptMenuResponse "VOTING_open";
+			
+			//setLocalVarInt ui_button_focus 0;
+			//setLocalVarInt ui_section_focus 0;
+			
+			//4GF.CZ reklama :)
+			//execnow "set TMENU_bottomT 1";
+			//execnow "set acp_button_info acp_info_start";
+			
+			//execnow "set cg_hudChatPosition 5 380";
+			//execnow "set acp_section_size 4";
+			//execnow "set acp_vis_4 1";
+			//execnow "set acp_popup_size 7";
+			
+			//execNow "set SHOP_visInv 1; set SHOP_secS 0";
+			
+			execNow "set VOTING_sel 20";
+		}
+		onClose
+		{	
+			//setDvar cl_bypassMouseInput "0";
+			scriptMenuResponse "VOTING_close";
+			
+			//execnow "set cg_hudChatPosition 5 204";
+		}		
+
+		// ================== BACKGROUND ===================== //
+		// dvars
+		// VOTING_count
+		// VOTING_title
+		// VOTING_subTitle
+		// VOTING_item<num>N
+		// VOTING_item<num>V
+		// VOTING_sel
+		
+		// responses
+		// VOTING_vote_<num>
+		
+		#define BG_X 140
+		#define BG_Y 0
+		#define BG_W 360
+		#define BG_H 480
+		
+		#define SPACE 8
+		#define SMALLSPACE (SPACE*0.5)
+		#define BIGSPACE (SPACE*2)
+		
+		#define TITLE_X BG_X
+		#define TITLE_Y BG_Y
+		#define TITLE_W BG_W
+		#define TITLE_H 30
+		
+		#define SUBTITLE_X BG_X
+		#define SUBTITLE_Y (TITLE_Y+TITLE_H)
+		#define SUBTITLE_W BG_W
+		#define SUBTITLE_H 20
+
+		#define ITEM_COUNT DvarInt( "VOTING_count" )
+		#define ITEM_W BG_W
+		#define ITEM_H 20
+		#define ITEM_X BG_X
+		#define ITEM_Y (BG_Y+TITLE_H+SUBTITLE_H+((BG_H-(TITLE_H+SUBTITLE_H+(ITEM_H*ITEM_COUNT)))*0.5))
+		
+		// pozadie
+		itemDef
+		{
+			rect			BG_X BG_Y BG_W BG_H 0 0
+			style			WINDOW_STYLE_FILLED
+			backcolor		BG_BLACKSCREEN_COLOR
+			visible			1
+		}
+
+		// title
+		itemDef
+		{	
+			rect			TITLE_X TITLE_Y TITLE_W TITLE_H 0 0
+			style			WINDOW_STYLE_EMPTY
+			forecolor		TEXT_NORMAL_COLOR
+			exp				text( DvarString( "VOTING_title" ) );
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			textscale		FONTSCALE_BIG
+			visible			1
+			decoration
+		}
+		
+		// subtitle
+		itemDef
+		{	
+			rect			SUBTITLE_X SUBTITLE_Y SUBTITLE_W SUBTITLE_H 0 0
+			style			WINDOW_STYLE_EMPTY
+			forecolor		TEXT_NORMAL_COLOR
+			exp				text( DvarString( "VOTING_subTitle" ) );
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
+			textscale		FONTSCALE_NORMAL
+			visible			1
+			decoration
+		}		
+
+		// fake btn
+		itemDef
+		{	
+			rect			0 0 640 480 0 0
+			style			WINDOW_STYLE_EMPTY
+			backcolor		0 0 0 0
+			visible			1
+		}
+		
+		// pointer
+		itemDef
+		{	
+			rect			ITEM_X 0 ITEM_W ITEM_H 0 0
+			exp				rect Y( ITEM_Y + (ITEM_H*DvarInt( "VOTING_sel" )) );
+			style			WINDOW_STYLE_FILLED
+			backcolor		BTN_SELECTED
+			visible			when( DvarInt( "VOTING_sel" ) < ITEM_COUNT )
+		}					
+		
+		#define ITEM( num, num_s ) \
+			itemDef \
+			{ \
+				rect			ITEM_X 0 ITEM_W ITEM_H 0 0 \
+				exp				rect Y( ITEM_Y + (ITEM_H*num) ); \
+				style			WINDOW_STYLE_EMPTY \
+				forecolor		TEXT_NORMAL_COLOR \
+				exp				text( DvarString( "VOTING_item"+num+"V" ) ); \
+				textalign		ITEM_ALIGN_MIDDLE_RIGHT \
+				textscale		FONTSCALE_NORMAL \
+				visible			when( num < ITEM_COUNT ) \
+			} \
+			itemDef \
+			{ \
+				type			ITEM_TYPE_BUTTON \
+				rect			ITEM_X 0 ITEM_W ITEM_H 0 0 \
+				exp				rect Y( ITEM_Y + (ITEM_H*num) ); \
+				style			WINDOW_STYLE_EMPTY \
+				forecolor		TEXT_NORMAL_COLOR \
+				exp				text( DvarString( "VOTING_item"+num+"N" ) ); \
+				textalign		ITEM_ALIGN_MIDDLE_LEFT \
+				textalignx		ITEM_ALIGN_X_MASK \
+				textscale		FONTSCALE_NORMAL \
+				visible			when( num < ITEM_COUNT ) \
+				mouseEnter		{ execNow "set VOTING_sel "num_s; } \
+				mouseExit		{ execNow "set VOTING_sel 20"; } \
+				action			{ scriptMenuResponse "VOTING_vote_"num_s; } \
+			} \
+			
+		ITEM( 0, "0" )
+		ITEM( 1, "1" )
+		ITEM( 2, "2" )
+		ITEM( 3, "3" )
+		ITEM( 4, "4" )
+		ITEM( 5, "5" )
+		ITEM( 6, "6" )
+		ITEM( 7, "7" )
+		ITEM( 8, "8" )
+		ITEM( 9, "9" )
+	}
+}
