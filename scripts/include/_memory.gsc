@@ -51,7 +51,7 @@ MEM_DecimalToHexadecimal( decNumber )
 	
 		curDigit = decNumber & 1;
 		decNumber >>= 1;
-		tempNum |= MATH_Exponentiate( 2, tempDigitI ) * curDigit;
+		tempNum |= MATH_Power( 2, tempDigitI ) * curDigit;
 		tempDigitI++;
 	}
 	
@@ -102,7 +102,7 @@ MEM_DecimalToBinary( decNumber, size )
 ///
 MEM_BinaryToDecimal( binNumber )
 {
-	digits = STR_GetChars( binNumber );
+	digits = "" + binNumber + "";
 	digitI = 0;
 	result = 0;
 	
@@ -110,7 +110,7 @@ MEM_BinaryToDecimal( binNumber )
 	{
 		digit = int( digits[i] );
 		
-		result += digit * MATH_Exponentiate( 2, digitI );
+		result += digit * MATH_Power( 2, digitI );
 		digitI++;
 	}
 	
@@ -123,7 +123,7 @@ MEM_BinaryToDecimal( binNumber )
 MEM_GetVariableSize( decNumber )
 {
 	binaryNum = MEM_DecimalToBinary( decNumber );
-	digits = STR_GetChars( binaryNum );
+	digits = "" + binaryNum + "";
 	return digits.size;
 }
 
@@ -138,7 +138,7 @@ MEM_GetVariableSize( decNumber )
 ///
 MEM_MergeNumbers( decNumber, binNumber )
 {
-	binDigits = STR_GetChars( binNumber );
+	binDigits = "" + binNumber + "";
 	for( i = 0; i < binDigits.size; i++ )
 	{
 		digit = int( binDigits[i] );

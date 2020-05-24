@@ -40,7 +40,7 @@ OnMenuResponse( player, menu, response )
 	
 	if( !IsDefined( level.LastQuickVoteTime ) || GetTime() - level.LastQuickVoteTime > 0 )
 	{
-		level.LastQuickVoteTime = GetTime() + level.Dvars["qVote_time"] + level.Dvars["qVote_delay"];
+		level.LastQuickVoteTime = GetTime() + level.dvars["qVote_time"] + level.dvars["qVote_delay"];
 		StartVoting( response );
 	}
 	else
@@ -54,10 +54,10 @@ StartVoting( response )
 	switch( response )
 	{
 		case "VOTE_endMap":
-			thread QV( "Do you want to end map?", level.Dvars["qVote_time"], ::OnEndMap, undefined );
+			thread QV( "Do you want to end map?", level.dvars["qVote_time"], ::OnEndMap, undefined );
 			return;
 		case "VOTE_addBots":
-			thread QV( "Do you want to add bots?", level.Dvars["qVote_time"], ::OnAddBots, undefined );
+			thread QV( "Do you want to add bots?", level.dvars["qVote_time"], ::OnAddBots, undefined );
 			return;
 		default:
 			PrintError( "Unknown VOTE string '" + response + "'" );

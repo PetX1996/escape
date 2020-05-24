@@ -52,7 +52,7 @@ DestructibleEntity(destructible_type, Fhealth, Dpersonality, Dteam, Ddelete, Dsh
 {
 	if(!IsDefined(destructible_type))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__, "has not any arguments");
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature, "has not any arguments");
 		return;
 	}
 	
@@ -142,11 +142,14 @@ CheckFireFXAndSound(info, playOnChildren)
 	if (!playOnChildren)
 		return;
 		
-	targetEnts = GetEntArray(self.target, "targetname");
-	foreach(targetEnt in targetEnts)
+	if (IsDefined(self.target))
 	{
-		if(IsDefined(targetEnt.destructible_type))
-			targetEnt CheckFireFXAndSound(info, false);
+		targetEnts = GetEntArray(self.target, "targetname");
+		foreach(targetEnt in targetEnts)
+		{
+			if(IsDefined(targetEnt.destructible_type))
+				targetEnt CheckFireFXAndSound(info, false);
+		}
 	}
 }
 

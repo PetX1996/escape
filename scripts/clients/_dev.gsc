@@ -50,8 +50,8 @@ PreCache()
 
 SpawnPlayer()
 {
-	//if( !level.dvar["developer"] )
-		//return;
+	if( !level.dvars["developer"] )
+		return;
 
 	dvar = GetDvar( "scr_spawn_origin" );
 	if( dvar != "" ) self.SpawnPlayer.origin = STR_Str2Vector( dvar );
@@ -116,7 +116,7 @@ SpawnPlayer()
 
 OnSpawnPlayer()
 {
-	if( !level.dvar["developer"] )
+	if( !level.dvars["developer"] )
 		return;
 		
 	thread StartFlying();

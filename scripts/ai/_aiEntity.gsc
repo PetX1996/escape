@@ -63,8 +63,8 @@ AI( origin, angles )
 	ent SetModel( "4gf_laser_emitor" );
 	
 	ent HEALTH( AI_INI_HEALTH );
-	ent HEALTH_Start();
 	AddCallback( ent, "HEALTH_entityDelete", ::AI_Delete );
+	ent HEALTH_Start();
 	
 	ent.AI = SpawnStruct();
 	ent.AI.SearchPriority = undefined;

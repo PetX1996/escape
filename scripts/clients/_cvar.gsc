@@ -57,7 +57,7 @@ CreateCvarList()
 	//main menu
 	AddCvarToList("ui_mapFullName", GetDvar( "ui_mapFullName" ) );
 	AddCvarToList("ui_gameTypeFullName", GetDvar( "ui_gameTypeFullName" ) );
-	AddCvarToList("ui_modVerFull", GetDvar( "_Mod" ) + " " + GetDvar( "_ModVer" ) + " ( " + __DATE__ + " )" );
+	AddCvarToList("ui_modVerFull", GetDvar( "_Mod" ) + " " + GetDvar( "_ModVer" ) + " ( " + COMPILER::Date + " )" );
 	
 	self [[level.SendCMD]]( "exec client_cfg/connect.cfg" );
 	

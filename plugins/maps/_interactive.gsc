@@ -1,6 +1,9 @@
 #include plugins\_include;
 //#include scripts\include\_shapes;
 
+#include scripts\include\_event;
+#include scripts\include\_health;
+
 //script_team
 //script_health
 //script_looping
@@ -23,19 +26,27 @@ MovableObjects( objectsName )
 		return;
 	}
 	
-	for( i = 0;i < objects.size;i++ )
+	foreach (object in objects)
 	{
-		if( !isDefined( objects[i].radius ) )
-			objects[i].radius = 128;
+		if( !isDefined( object.radius ) )
+			object.radius = 128;
 		
-		if( !isDefined( objects[i].height ) )
-			objects[i].height = 128;	
+		if( !isDefined( object.height ) )
+			object.height = 128;	
 
-		objects[i].owner = undefined;
-		objects[i].placed = undefined;
+		object.owner = undefined;
+		object.placed = undefined;
 	
-		if( isDefined( objects[i].script_health ) )
-			objects[i] thread scripts\_health::SetObjectHealth( objects[i].script_health, undefined, ::MovableObjects_OnDelete );
+		if( isDefined( object.script_health ) )
+		{
+			object HEALTH(object.script_health);
+			
+			object HEALTH_EnableFlag(HEALTH_FLAG_NODELETE);
+				
+		    AddCallback(object, "HEALTH_entityDelete", ::MovableObjects_OnDelete);
+			
+			object HEALTH_Start();
+		}
 	}
 
 	thread MovableObjects_Monitor( objects );
@@ -271,6 +282,8 @@ MovableObjects_isPlayerInRadius( object )
 
 MovableObjects_OnDelete( iDamage, attacker, vDir, vPoint, sMeansOfDeath, modelName, tagName, partName, iDFlags )
 {
+	DeleteCallback(self, "HEALTH_entityDelete", ::MovableObjects_OnDelete);
+
 	if( isDefined( self.owner ) && isPlayer( self.owner ) )
 		self.owner scripts\clients\_hud::SetLowerText();
 		

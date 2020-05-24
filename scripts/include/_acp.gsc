@@ -37,9 +37,9 @@ private ACP_MENU_BUTTONS_COUNT = 13;
 private ACP_MENU_TEXTLINES_COUNT = 10;
 private ACP_MENU_SECTIONS_COUNT = 3;
 
-private ACP_SECTION_MAPS = 0;
-private ACP_SECTION_PLAYERS = 1;
-private ACP_SECTION_OTHERS = 2;
+public ACP_SECTION_MAPS = 0;
+public ACP_SECTION_PLAYERS = 1;
+public ACP_SECTION_OTHERS = 2;
 
 // ================================================================================================================================================================================================= //
 

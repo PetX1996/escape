@@ -32,10 +32,10 @@ private STAT_SPAWNCLASS_AXIS = 3299;
 private STAT_STARTINDEX_ALLIES = 2661;
 private STAT_STARTINDEX_AXIS = 3000;
 
-private TABLE_FILE_ALLIES = "mp/HumansClassTable.csv";
-private TABLE_FILE_AXIS = "mp/MonsterClassTable.csv";
+public TABLE_FILE_ALLIES = "mp/HumansClassTable.csv";
+public TABLE_FILE_AXIS = "mp/MonsterClassTable.csv";
 
-private TABLE_ITEMS_COUNT = 100;
+public TABLE_ITEMS_COUNT = 100;
 
 private TABLE_ALLIES_TYPE_FIGURE_S = 0;
 private TABLE_ALLIES_TYPE_WEAPON_S = 20;
@@ -49,8 +49,8 @@ private TABLE_AXIS_TYPE_FIRSTPERK_S = 40;
 private TABLE_AXIS_TYPE_SECONDPERK_S = 60;
 private TABLE_AXIS_TYPE_THIRDPERK_S = 80;
 
-private CLASS_CLASSINDEX_COUNT = 5;
-private CLASS_TYPEINDEX_COUNT = 5;
+public CLASS_CLASSINDEX_COUNT = 5;
+public CLASS_TYPEINDEX_COUNT = 5;
 
 // ================================================================================================================================================================================================= //
 // CLASS INDEX

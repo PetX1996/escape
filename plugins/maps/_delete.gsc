@@ -54,19 +54,19 @@ DeleteAfterTime(targetname, time, text, done_text)
 
 	if(!isdefined(trig))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__,"undefined object(trigger): "+targetname);
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature,"undefined object(trigger): "+targetname);
 		return;
 	}	
 	
 	if(!isdefined(trig.target))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__,"undefined object(brush): "+targetname);
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature,"undefined object(brush): "+targetname);
 		return;
 	}	
 	
 	if(!(trig.classname == "trigger_multiple" || trig.classname == "trigger_use_touch"))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__,"trigger must be type ^1trigger_multiple ^7or ^1trigger_use_touch: "+targetname);
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature,"trigger must be type ^1trigger_multiple ^7or ^1trigger_use_touch: "+targetname);
 		return;
 	}
 	
@@ -74,13 +74,13 @@ DeleteAfterTime(targetname, time, text, done_text)
 	
 	if(!isdefined(brush))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__,"undefined object(brush): "+targetname);
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature,"undefined object(brush): "+targetname);
 		return;
 	}	
 	
 	if(!isdefined(time))
 	{
-		PluginsError(__FILE__, __FUNCTIONFULL__,"undefined time to open, set to 0: "+targetname);
+		PluginsError(COMPILER::FilePath, COMPILER::FunctionSignature,"undefined time to open, set to 0: "+targetname);
 		time = 0;
 	}
 	

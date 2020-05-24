@@ -220,7 +220,7 @@ cd %SOURCEDIR%
 echo.   ==========================================================================
 echo.   I                        Compiling GSC                                   I
 echo.   ==========================================================================
-ScriptOptimalizer.exe -targetDir="%OUTPUTDIR%" -profile="Debug" -verbose
+rem ScriptOptimalizer.exe -targetDir="%OUTPUTDIR%" -profile="Debug" -verbose
 rem -deleteComments
 if "%verbose%"=="1" pause
 goto RUN

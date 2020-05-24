@@ -32,10 +32,10 @@
 #include scripts\include\_main;
 
 // iDFlags
-private HEALTH_FLAG_NODESTRUCTIBLE = 1;
-private HEALTH_FLAG_NODELETE = 2;
-private HEALTH_FLAG_NOMODIFY = 4;
-private HEALTH_FLAG_NOPROGRESS = 8;
+public HEALTH_FLAG_NODESTRUCTIBLE = 1;
+public HEALTH_FLAG_NODELETE = 2;
+public HEALTH_FLAG_NOMODIFY = 4;
+public HEALTH_FLAG_NOPROGRESS = 8;
 
 ///
 /// Pridá novú znièite¾nú entitu
@@ -52,7 +52,7 @@ HEALTH( health )
 			//self SetCanDamage( true );
 			break;
 		default:
-			PrintError( __FILE__, __FUNCTIONFULL__, "entity do not have a valid classname" );
+			PrintError( COMPILER::FilePath, COMPILER::FunctionSignature, "entity do not have a valid classname" );
 			return;
 	}
 	
@@ -81,7 +81,7 @@ HEALTH_Start()
 ///
 HEALTH_CheckDamage()
 {
-	while( true )
+	while( isDefined(self) )
 	{
 		PrintDebug("^1hp: "+self.health);
 		self waittill( "damage", iDamage, attacker, vDir, vPoint, sMeansOfDeath, modelName, tagName, partName, iDFlags );
@@ -90,8 +90,11 @@ HEALTH_CheckDamage()
 		//PrintDebug( "damage!" );
 		
 		if( self.EntityDamageFlags & HEALTH_FLAG_NODESTRUCTIBLE )
+		{
 			self HEALTH_Dispose();
-			
+			return;
+		}
+		
 		sWeapon = undefined;
 		if( IsPlayer( attacker ) )
 			sWeapon = attacker GetCurrentWeapon();
@@ -141,14 +144,19 @@ HEALTH_CheckDamage()
 		if( self.health == 0 )
 		{
 			self notify( "delete" );
-			
+		
 			scripts\_events::RunCallback( level, "HEALTH_entityDelete", 0, self );
 			scripts\_events::RunCallback( self, "HEALTH_entityDelete", 0 );
 			
-			if( IsDefined( self ) && !(self.EntityDamageFlags & HEALTH_FLAG_NODELETE) )
-				self Delete();
+			if( IsDefined( self ))
+			{
+				bDeleteEntity = !(self.EntityDamageFlags & HEALTH_FLAG_NODELETE);
+				self HEALTH_Dispose();
 			
-			self.EntityDamage = undefined;
+				if ( bDeleteEntity )
+					self Delete();
+			}
+			
 			return;
 		}
 		

@@ -47,6 +47,7 @@ OnButtonPressed()
 	barrier IA_PlayerObject( self );
 	
 	AddCallback( barrier, "IA_placedOnGround", ::CreateTrigger );
+	AddCallback( barrier, "IA_entityDelete", ::Callback_IA_EntityDelete );
 	
 	// dispose
 	DeleteCallback( self, "gearButton", ::OnButtonPressed );
@@ -67,12 +68,18 @@ CreateTrigger( player )
 	self.trigger SetContents( 1 );
 	
 	self HEALTH( 1000 );
+	AddCallback( self, "HEALTH_entityDelete", ::Callback_HEALTH_EntityDelete );
 	self HEALTH_Start();
-	AddCallback( self, "entityHealthDelete", ::OnDestroy );
 }
 
-OnDestroy()
+Callback_IA_EntityDelete( player )
 {
-	self DeleteCallback( self, "entityHealthDelete", ::OnDestroy );
+	self DeleteCallback( self, "IA_entityDelete", ::Callback_IA_EntityDelete );
+}
+
+Callback_HEALTH_EntityDelete()
+{
+	self DeleteCallback( self, "HEALTH_entityDelete", ::Callback_HEALTH_EntityDelete );
+
 	self.trigger Delete();
 }

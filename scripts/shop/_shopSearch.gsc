@@ -18,6 +18,9 @@
 #include scripts\include\_array;
 #include scripts\include\_math;
 
+private INTMIN = -2147483647;
+private INTMAX = 2147483647;
+
 // h¾adanie spawngroups a optimálneho position/radius
 
 private CUBOID_BORDER = 32;
@@ -40,12 +43,12 @@ CUBOID_Get( spawnPoints )
 
 CUBOID_GetParameters( spawnPoints )
 {
-	mX = __INT_MIN__;
-	mY = __INT_MIN__;
-	mZ = __INT_MIN__;
-	nX = __INT_MAX__;
-	nY = __INT_MAX__;
-	nZ = __INT_MAX__;
+	mX = INTMIN;
+	mY = INTMIN;
+	mZ = INTMIN;
+	nX = INTMAX;
+	nY = INTMAX;
+	nZ = INTMAX;
 
 	foreach( spawnPoint in spawnPoints )
 	{

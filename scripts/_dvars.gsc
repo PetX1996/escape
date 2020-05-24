@@ -152,7 +152,7 @@ SetDvarValue( dvarName, dvarValue, dvarType, defaultValue, minValue, maxValue )
 			dvarValue = maxValue;
 	}
 	
-	level.Dvars[dvarName] = dvarValue;
+	level.dvars[dvarName] = dvarValue;
 }
 
 GetDvarValue( dvarName, dvarType, defaultValue, minValue, maxValue )

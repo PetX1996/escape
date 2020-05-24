@@ -50,16 +50,22 @@ UseSpray()
 	
 	angles = self getPlayerAngles();
 	eye = self getTagOrigin( "j_head" );
-	forward = eye + vector_scale( anglesToForward( angles ), 70 );
+	forward = eye + vector_scale( AnglesToForward( angles ), 70 );
 	trace = bulletTrace( eye, forward, false, self );
 	
 	if( trace["fraction"] == 1 ) //we didnt hit the wall or floor
 		return;
 		
-	position = trace["position"] - vector_scale( anglesToForward( angles ), -2 );
+	position = trace["position"] - vector_scale( AnglesToForward( angles ), -2 );
 	angles = vectorToAngles( eye - position );
 	forward = anglesToForward( angles );
 	up = anglesToUp( angles );
 
 	playFx( AddFXtoList( self.spray ), position, forward, up );
+}
+
+vector_scale(vec, scale)
+{
+	vec = (vec[0] * scale, vec[1] * scale, vec[2] * scale);
+	return vec;
 }

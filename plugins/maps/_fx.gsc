@@ -18,6 +18,8 @@
 #include common_scripts\utility;
 #include plugins\_include;
 
+#include scripts\include\_main;
+
 /* 
 I==============================================================================================I
 Vytvori efekt/zvuk

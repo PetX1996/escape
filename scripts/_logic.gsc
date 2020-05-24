@@ -35,7 +35,7 @@ init()
 
 StartLogic()
 {
-	if( !level.Dvars["developer"] && level.Dvars["logic"] )
+	if( !level.dvars["developer"] && level.dvars["logic"] )
 		return;
 
 	wait 1;
@@ -59,7 +59,7 @@ MonitorGame()
 		if( !IsDefined( level.RoundStarted ) )
 			continue;
 		
-		if( !level.Dvars["logic"] || level.Dvars["developer"] )
+		if( !level.dvars["logic"] || level.dvars["developer"] )
 			continue;
 		
 		if( Int( LOGIC_GetTimeRemaining()/1000 ) == 120 )

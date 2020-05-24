@@ -39,7 +39,7 @@
 //		\/							|
 //		 \__________________________|
 
-using IA = scripts\include\_interactive;
+//using IA = scripts\include\_interactive;
 
 #include scripts\include\_main;
 #include scripts\include\_collision;
@@ -315,8 +315,12 @@ IA_DestroyObject( player )
 		}
 	}
 	
+	scripts\_events::RunCallback( level, "IA_entityDelete", 1, self, player );
+	
 	if( IsDefined( self ) )
 	{
+		scripts\_events::RunCallback( self, "IA_entityDelete", 1, player );
+	
 		self UnLink();
 		self ENT_Delete();
 	}

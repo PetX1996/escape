@@ -23,7 +23,7 @@
 init()
 {
 	level.StartLevelTime = GetTime();
-	level.Dvars = [];
+	level.dvars = [];
 	level.players = [];
 	level.CALLBACK = [];
 	level.Spawns = [];
@@ -973,12 +973,12 @@ Callback_PlayerLastStand( eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon,
 
 // __DATE__         // compile date '27. 3. 2013'
 // __TIME__         // compile time '16:32'
-// __FILE__         // file name '_ai'
+// COMPILER::FilePath         // file name '_ai'
 // __FILEFULL__     // raw path + file name 'scripts\_ai'
 // __LINE__         // current line number '73'
 // __LINEFULL__     // current line '	if( !IsDefined( team ) )'
 // __FUNCTION__     // current function name 'AI'
-// __FUNCTIONFULL__ // current function name + signature 'AI( origin, angles )'
+// COMPILER::FunctionSignature // current function name + signature 'AI( origin, angles )'
 // __INT_MIN__      // min int number '-2147483647'
 // __INT_MAX__      // max int number '2147483647'
 

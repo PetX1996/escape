@@ -15,7 +15,7 @@
 // Script by: PetX
 //I========================================================================I
 
-private GetAllPlayers( team )
+GetAllPlayers( team )
 {
 	array = [];
 	for( i = 0; i < level.players.size; i++ )
@@ -34,7 +34,7 @@ private GetAllPlayers( team )
 	return array;
 }
 
-private GetAllAlivePlayers( team )
+GetAllAlivePlayers( team )
 {
 	players = [];
 	for( i = 0; i < level.players.size; i++ )

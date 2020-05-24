@@ -17,6 +17,8 @@
 
 #include plugins\_include;
 
+#include scripts\include\_main;
+
 /* 
 I==============================================================================================I
 Random teleport hraca na originy
