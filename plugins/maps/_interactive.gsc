@@ -3,6 +3,17 @@
 
 #include scripts\include\_event;
 #include scripts\include\_health;
+#include scripts\include\_look;
+#include scripts\include\_math;
+
+private IA_SMOOTH_ANGLE = 10;
+private IA_MAXSEEDISTANCE = 1000;
+
+private IA_COLLIDE_RADIUS = 128;
+private IA_COLLIDE_HEIGHT = 128;
+
+private IA_DELAY_GRAB = 1000;
+private IA_DELAY_GRABAGAIN = 500;
 
 //script_team
 //script_health
@@ -14,7 +25,7 @@ MovableObjects( objectsName )
 {
 	if( !isDefined( objectsName ) )
 	{
-		PluginsError( "MovableObjects() - bad function calling" );
+		PluginsError( COMPILER::FilePath, COMPILER::FunctionSignature, "bad function calling" );
 		return;
 	}
 	
@@ -22,17 +33,17 @@ MovableObjects( objectsName )
 	
 	if( !isDefined( objects ) || !objects.size )
 	{
-		PluginsError( "MovableObjects() - undefined entity "+objectsName );
+		PluginsError( COMPILER::FilePath, COMPILER::FunctionSignature, "undefined entity " + objectsName );
 		return;
 	}
 	
 	foreach (object in objects)
 	{
 		if( !isDefined( object.radius ) )
-			object.radius = 128;
+			object.radius = IA_COLLIDE_RADIUS;
 		
 		if( !isDefined( object.height ) )
-			object.height = 128;	
+			object.height = IA_COLLIDE_HEIGHT;	
 
 		object.owner = undefined;
 		object.placed = undefined;
@@ -40,8 +51,6 @@ MovableObjects( objectsName )
 		if( isDefined( object.script_health ) )
 		{
 			object HEALTH(object.script_health);
-			
-			object HEALTH_EnableFlag(HEALTH_FLAG_NODELETE);
 				
 		    AddCallback(object, "HEALTH_entityDelete", ::MovableObjects_OnDelete);
 			
@@ -54,20 +63,17 @@ MovableObjects( objectsName )
 
 MovableObjects_Monitor( objects )
 {
-	size = objects.size;
-	
 	level waittill( "start_round" );
+
 	while( true )
 	{
 		wait 0.001;
 		
-		for( p = 0;p < level.players.size;p++ )
+		foreach ( player in level.players )
 		{
 			wait 0.001;
 			
-			player = level.players[p];
-			
-			if( !isDefined( player ) || !isPlayer( player ) || !isAlive( player ) || !isDefined( player.spawned ) )
+			if( !isDefined( player ) || !isPlayer( player ) || !isAlive( player ) || !isDefined( player.reallyAlive ) || !player.reallyAlive )
 				continue;
 			
 			if( isDefined( player.MovableObjects_grab ) )
@@ -75,12 +81,10 @@ MovableObjects_Monitor( objects )
 				
 			object = undefined;
 			ready = false;
-			for( i = 0;i < size;i++ )
+			foreach ( object in objects )
 			{
-				if( !isDefined( objects[i] ) )
+				if( !isDefined( object ) )
 					continue;
-			
-				object = objects[i];
 				
 				if( isDefined( object.owner ) )
 					continue;
@@ -91,12 +95,12 @@ MovableObjects_Monitor( objects )
 				if( isDefined( object.script_team ) && object.script_team != player.pers["team"] )
 					continue;
 			
-				pOrigin = player GetTagOrigin( "tag_eye" );
-				pAngles = player GetPlayerAngles();
+				pOrigin = player LOOK_GetPlayerViewPos();
+				pAngles = player LOOK_GetPlayerLookVector();
 				if( isDefined( distance( pOrigin, object.origin ) ) && distance( pOrigin, object.origin ) <= object.radius*3 )
 				{
 					start = pOrigin;
-					end = start + ( AnglesToForward( pAngles ) * 1000 );
+					end = start + ( pAngles * IA_MAXSEEDISTANCE );
 					trace = BulletTrace( start, end, true, player );
 					
 					if( isDefined( trace["entity"] ) && trace["entity"] == object )
@@ -112,7 +116,7 @@ MovableObjects_Monitor( objects )
 			
 			if( !ready )
 			{
-				thread MovableObjects_CleanStatus( player, object );
+				MovableObjects_CleanPlayerLooking( player );
 			}
 		}
 	}
@@ -134,33 +138,18 @@ MovableObjects_WaitToGrab( player, object )
 	player.MovableObjects_looking = object;
 	player thread scripts\clients\_hud::SetLowerText( "Press ^3USE ^7grab object." );
 	
-	while( !player UseButtonPressed() || ( isDefined( player.MovableObjects_GrabTime ) && GetTime() - player.MovableObjects_GrabTime < 500 ) )
+	while( !player UseButtonPressed() 
+		|| ( isDefined( player.MovableObjects_GrabTime ) && GetTime() - player.MovableObjects_GrabTime < IA_DELAY_GRABAGAIN ) )
+	{
 		wait 0.1;
-		
+	}
+	
 	player thread MovableObjects_Grab( object );
 }
 
-MovableObjects_CleanStatus( player, object )
+MovableObjects_CleanStatus( object, playerGrab )
 {
-	if( !isDefined( player.MovableObjects_looking ) )
-		return;
-		
-	player notify( "MovableObjects_looking" );
-		
-	player.MovableObjects_looking = undefined;
-	player thread scripts\clients\_hud::SetLowerText();
-}
-
-MovableObjects_Grab( object )
-{
-	if( isDefined( self.MovableObjects_grab ) )
-		return;
-
-	self.MovableObjects_grab = true;	
-		
-	self MovableObjects_GrabObject( object );
-	
-	if( isDefined( object ) )
+	if ( isDefined( object ) )
 	{
 		object unLink();
 		if( isDefined( object.ent ) )
@@ -170,11 +159,45 @@ MovableObjects_Grab( object )
 		object.placed = true;
 	}
 	
-	if( isDefined( self ) )
+	if ( isDefined( playerGrab ) && isDefined( playerGrab.MovableObjects_grab ) )
 	{
-		self.MovableObjects_grab = undefined;
-		self.MovableObjects_looking = undefined;
+		playerGrab notify( "MovableObjects_drop" );
+		
+		playerGrab.MovableObjects_grab = undefined;
+		playerGrab thread scripts\clients\_hud::SetLowerText();
 	}
+	
+	foreach (player in level.players)
+	{
+		if ( isDefined( player) )
+		{
+			MovableObjects_CleanPlayerLooking( player );
+		}
+	}
+}
+
+MovableObjects_CleanPlayerLooking( player )
+{
+	if( isDefined( player ) && isDefined( player.MovableObjects_looking ) )
+	{
+		player notify( "MovableObjects_looking" );
+			
+		player.MovableObjects_looking = undefined;
+		player thread scripts\clients\_hud::SetLowerText();
+	}
+}
+
+MovableObjects_Grab( object )
+{
+	if( isDefined( self.MovableObjects_grab ) )
+		return;
+
+	self.MovableObjects_grab = true;	
+	self.MovableObjects_looking = undefined;
+		
+	self MovableObjects_GrabObject( object );
+	
+	MovableObjects_CleanStatus( object, self );
 }
 
 MovableObjects_GrabObject( object )
@@ -192,29 +215,30 @@ MovableObjects_GrabObject( object )
 	object.ent = spawn( "script_origin", object.origin );
 	object linkTo( object.ent );
 	
-	lastOrigin = self GetTagOrigin( "tag_eye" );
+	lastOrigin = self LOOK_GetPlayerViewPos();
 	lastAngles = self GetPlayerAngles();
 	dist = distance( lastOrigin, object.origin );
 	while( true )
 	{
 		wait 0.01;
 	
-		if( self UseButtonPressed() && GetTime() - StartTime > 1000 )
+		if( self UseButtonPressed() && GetTime() - StartTime > IA_DELAY_GRAB )
 		{
-			if( !MovableObjects_isPlayerInRadius( object ) )
+			if( !self MovableObjects_isPlayerInRadius( object ) )
 			{
-				self thread scripts\clients\_hud::SetLowerText();
 				self.MovableObjects_GrabTime = GetTime();
 				return;
 			}
 		}
 		
-		origin = self GetTagOrigin( "tag_eye" );
+		origin = self LOOK_GetPlayerViewPos();
 		angles = self GetPlayerAngles();
 		
 		if( lastOrigin == origin )
 		{
-			if( distanceNum( angles[0], lastAngles[0] ) < 20 && distanceNum( angles[1], lastAngles[1] ) < 20 && distanceNum( angles[2], lastAngles[2] ) < 20 )
+			if( MATH_DistanceNumber( angles[0], lastAngles[0] ) < IA_SMOOTH_ANGLE 
+				&& MATH_DistanceNumber( angles[1], lastAngles[1] ) < IA_SMOOTH_ANGLE 
+				&& MATH_DistanceNumber( angles[2], lastAngles[2] ) < IA_SMOOTH_ANGLE )
 				continue;
 		}
 		
@@ -245,25 +269,14 @@ MovableObjects_GrabObject( object )
 	}
 }
 
-distanceNum( num1, num2 )
-{
-	if( num1 == num2 )
-		return 0;
-
-	if( num1 > num2 )
-		return num1-num2;
-	else
-		return num2-num1;
-}
-
 MovableObjects_isPlayerInRadius( object )
 {
+	isTouching = false;
 	trigger = spawn( "trigger_radius", ( object.origin[0], object.origin[1], object.origin[2]-(object.height/2) ), 0, object.radius, object.height );
-	for( i = 0;i < level.players.size;i++ )
+	
+	foreach ( player in level.players )
 	{
-		player = level.players[i];
-		
-		if( !isDefined( player ) || !isPlayer( player ) || !isAlive( player ) || !isDefined( player.spawned ) )
+		if( !isDefined( player ) || !isPlayer( player ) || !isAlive( player ) || !isDefined( player.reallyAlive ) || !player.reallyAlive )
 			continue;
 			
 		if( player == self )
@@ -271,22 +284,18 @@ MovableObjects_isPlayerInRadius( object )
 			
 		if( player IsTouching( trigger ) )
 		{
-			trigger delete();
-			return true;
+			isTouching = true;
+			break;
 		}
 	}
 	
 	trigger delete();
-	return false;
+	return isTouching;
 }
 
-MovableObjects_OnDelete( iDamage, attacker, vDir, vPoint, sMeansOfDeath, modelName, tagName, partName, iDFlags )
+MovableObjects_OnDelete()
 {
 	DeleteCallback(self, "HEALTH_entityDelete", ::MovableObjects_OnDelete);
 
-	if( isDefined( self.owner ) && isPlayer( self.owner ) )
-		self.owner scripts\clients\_hud::SetLowerText();
-		
-	if( isDefined( self.ent ) )
-		self.ent delete();
+	MovableObjects_CleanStatus( self, self.owner );
 }
