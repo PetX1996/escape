@@ -1,14 +1,31 @@
 ignore,mod_ignore
-include,csv_dev
-include,csv_weapons
-include,csv_rank
-include,csv_class_allies
-include,csv_class_axis
 
+// Localized strings
 localize,escape
 localize,rank
 localize,platform
 
+// client configs
+rawfile,ccfgs/connect.cfg
+rawfile,ccfgs/loop.cfg
+rawfile,ccfgs/mainAbout.cfg
+rawfile,ccfgs/mainInfo.cfg
+
+// GameTypes
+rawfile,maps/mp/gametypes/_gametypes.txt
+rawfile,maps/mp/gametypes/escape.txt
+rawfile,maps/mp/gametypes/survival.txt
+rawfile,maps/mp/gametypes/location.txt
+
+// Animation scripts
+rawfile,animtrees/multiplayer.atr
+rawfile,mp/playeranimtypes.txt
+rawfile,mp/playeranim.script
+
+// Bullet penetration
+
+
+// String tables
 stringtable,mp/rankTable.csv
 stringtable,mp/rankicontable.csv
 stringtable,mp/HumansClassTable.csv
@@ -17,14 +34,33 @@ stringtable,mp/playerStatsTable.csv
 stringtable,mp/FreeStatsTable.csv
 stringtable,mp/WeaponsTable.csv
 
-rawfile,maps/mp/gametypes/_gametypes.txt
-rawfile,maps/mp/gametypes/escape.txt
-rawfile,maps/mp/gametypes/survival.txt
-rawfile,maps/mp/gametypes/location.txt
+// menus
+menufile,ui_mp/scriptmenus/team_marinesopfor.menu
+menufile,ui_mp/scriptmenus/scoreboard.menu
+menufile,ui_mp/scriptmenus/clientcmd.menu
+menufile,ui_mp/scriptmenus/class_marines.menu
+menufile,ui_mp/scriptmenus/class_opfor.menu
+menufile,ui_mp/scriptmenus/shop.menu
+menufile,ui_mp/scriptmenus/voting.menu
+menufile,ui_mp/scriptmenus/acp.menu
+menufile,ui_mp/hud.menu
+menufile,ui_mp/main.menu
+menufile,ui_mp/connect.menu
+menufile,ui_mp/controls_multi.menu
+//menufile,ui_mp/options_multi.menu
+//menufile,ui/error.menu
+//menufile,ui/options_graphics_pc.menu
 
+// sound aliases & sound files
+sound,menu_escape,,all_mp
+
+// weapons
+
+// SHOCK
 rawfile,shock/radiation_zeroy.shock
 rawfile,shock/flashbang.shock
 
+// FX
 //fx,impacts/flesh_hit_body_fatal_exit
 //fx,impacts/flesh_hit_body_nonfatal
 //fx,impacts/flesh_hit_knife
@@ -42,41 +78,16 @@ fx,visual/endround_player
 
 fx,dev/laser
 
-menufile,ui_mp/scriptmenus/team_marinesopfor.menu
-menufile,ui_mp/scriptmenus/scoreboard.menu
-menufile,ui_mp/scriptmenus/clientcmd.menu
-menufile,ui_mp/scriptmenus/class_marines.menu
-menufile,ui_mp/scriptmenus/class_opfor.menu
-menufile,ui_mp/scriptmenus/shop.menu
-menufile,ui_mp/scriptmenus/voting.menu
-menufile,ui_mp/scriptmenus/acp.menu
-
-menufile,ui_mp/hud.menu
-menufile,ui_mp/main.menu
-menufile,ui_mp/connect.menu
-menufile,ui_mp/controls_multi.menu
-//menufile,ui_mp/options_multi.menu
-
-//menufile,ui/error.menu
-//menufile,ui/options_graphics_pc.menu
-
-sound,menu_escape,,all_mp
-
-xmodel,bc_hesco_barrier_sm
-//xmodel,bc_hesco_barrier_med
+// XMODEL
 xmodel,4gf_laser_emitor
 
-weapon,mp/saw_bipod_prone_mp
-xmodel,weapon_saw_MG_setup
 //xmodel,com_barrel_silver
 //xmodel,escape_item_dron
 xmodel,bathroom_soap
 
-rawfile,client_cfg/connect.cfg
-rawfile,client_cfg/loop.cfg
-rawfile,client_cfg/mainAbout.cfg
-rawfile,client_cfg/mainInfo.cfg
-
-rawfile,animtrees/multiplayer.atr
-rawfile,mp/playeranim.script
-rawfile,mp/playeranimtypes.txt
+// INCLUDE
+include,escape_dev
+include,escape_weapons
+include,escape_rank
+include,escape_class_allies
+include,escape_class_axis

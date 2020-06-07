@@ -22,10 +22,10 @@
 			//focusFirst;
 			//setfocus "button_large_1";
 			execnow "set MAIN_sel 10";
-			exec "exec client_cfg/loop.cfg";
+			exec "exec ccfgs/loop.cfg";
 			scriptMenuResponse "teamselect_open";
 			
-			execNow "set VOTING_sel 20; set MAIN_visInfo 1; set MAIN_infoP 0; exec client_cfg/mainInfo.cfg";
+			execNow "set VOTING_sel 20; set MAIN_visInfo 1; set MAIN_infoP 0; exec ccfgs/mainInfo.cfg";
 		}
 		onClose
 		{

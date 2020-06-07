@@ -72,7 +72,7 @@ MAIN_BOTTOM_BUTTON( 3, "3", "Voting", ; )
 MAIN_BOTTOM_BUTTON( 4, "4", "Controls", open main_controls; close self; )
 MAIN_BOTTOM_BUTTON( 5, "5", "Options", open main_options; execnow "set ui_allow_graphic_change 0"; close self; )
 
-MAIN_BOTTOM_BUTTON( 7, "7", "About", execNow "exec client_cfg/mainAbout.cfg; set MAIN_infoP 0; set MAIN_visInfo 1"; )
+MAIN_BOTTOM_BUTTON( 7, "7", "About", execNow "exec ccfgs/mainAbout.cfg; set MAIN_infoP 0; set MAIN_visInfo 1"; )
 MAIN_BOTTOM_BUTTON( 8, "8", "Quit", open popup_quit; )
 
 

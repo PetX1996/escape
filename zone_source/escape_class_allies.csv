@@ -100,3 +100,17 @@ material,weapon_taurus
 // ============================
 // THIRDPERK
 // ============================
+
+// ============================
+// EQUIPMENT
+// ============================
+
+// BIPOD - SAW
+// ==================================================
+weapon,mp/saw_bipod_prone_mp
+xmodel,weapon_saw_MG_setup
+
+// BARRIER
+// ==================================================
+xmodel,bc_hesco_barrier_sm
+//xmodel,bc_hesco_barrier_med

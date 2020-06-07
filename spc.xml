@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <!-- Relative to workingDir\scriptinfo 
+  Has to contain folders Extern, FSGame and Raw-->
+  <scriptInfoDir>escape</scriptInfoDir>
+  <!-- ================================================================================================================================================================== -->
+  <!-- INPUTS -->
+  <!-- ================================================================================================================================================================== -->
+  <!-- sourceRaw, sourceFSGame element
+          path(string) - can be full path(with root) or relative path(relative to current game path)
+          includeSubFolders(bool) - recursive includes all folders and their folders and all files in them
+          includeFiles(bool) - include all files in current folder 
+       includeFiles, excludeFiles element
+          folder(string) - name of the folder
+		  includeSubFolders(bool) - recursive includes all folders and their folders and all files in them 
+  -->
+  <sourceRaw path="raw" includeFiles="False" includeSubFolders="False">
+    <!--
+	<includeFiles folder="character" includeSubFolders="True">
+    </includeFiles>
+	-->
+    <includeFiles folder="codescripts" includeSubFolders="True">
+    </includeFiles>
+    <includeFiles folder="common_scripts" includeSubFolders="True">
+    </includeFiles>
+    <excludeFiles folder="maps" includeSubFolders="False">
+      <!--
+      <includeFiles folder="createart" includeSubFolders="True">
+      </includeFiles>
+      <includeFiles folder="createfx" includeSubFolders="True">
+      </includeFiles>
+	  -->
+      <includeFiles folder="mp" includeSubFolders="True">
+      </includeFiles>
+    </excludeFiles>
+    <!--
+    <includeFiles folder="mptype" includeSubFolders="True">
+    </includeFiles>
+	-->
+  </sourceRaw>
+  <sourceFSGame path="Mods\escape" includeFiles="False" includeSubFolders="False">
+    <includeFiles folder="maps" includeSubFolders="True">
+    </includeFiles>
+    <includeFiles folder="mp" includeSubFolders="True">
+    </includeFiles>
+    <includeFiles folder="plugins" includeSubFolders="True">
+    </includeFiles>
+    <includeFiles folder="scripts" includeSubFolders="True">
+    </includeFiles>
+  </sourceFSGame>
+  <!-- ================================================================================================================================================================== -->
+  <!-- OUTPUTS -->
+  <!-- ================================================================================================================================================================== -->
+  <!-- 
+    1. search in outputs, which has defined TargetPlatform and TargetConfiguration.
+    2. search in outputs, which has defined TargetPlatform
+    3. search in outputs, which has defined TargetConfiguration
+    4. get first output without any conditions
+  -->
+  <!-- outputRaw, outputFSGame element
+          useAlways(bool) - always write SF to localPath with defined settings
+		  targetPlatform(TargetPlatform) - picked only when targetPlatform is equal
+		  targetConfiguration(TargetConfiguration) - picked only when targetConfiguration is equal
+       includeFiles - regex, only these files will compile
+       excludeFiles(string) - regex, these files will exclude from compiling
+       localPath(string) - can be full path(with root) or relative path(relative to current game path)
+	   execute(string) - relative or full path to EXE or BAT
+	   settings element
+	      deleteDefs(bool) - delete ConstDefs, OverwriteConstDef, UsingDef, PreProcessorRegion
+	      deleteComments(bool) - delete all comments from SF
+	      deleteWhite(bool) - delete all white spaces('\t', '\r', '\n', ' ')
+	      randomCase(bool) - randomly set letters in words to upper or lower
+	      lineLengthMin(int) - set length of every line between lineLengthMin and lineLengthMax, if both is equal to 0 it will ignore
+	      lineLengthMax(int) - set length of every line between lineLengthMin and lineLengthMax, if both is equal to 0 it will ignore -->
+  <!--
+  <outputRaw useAlways="True">
+    <localPath>Mods\dr_test</localPath>
+  </outputRaw>
+  <outputRaw targetPlatform="Windows" targetConfiguration="Debug">
+    <localPath>path to folder</localPath>
+    <execute>path to execute</execute>
+  </outputRaw>
+  -->
+  <outputFSGame targetConfiguration="Debug">
+    <excludeFiles>(maps\\mp\\(?!gametypes\\).*)</excludeFiles>
+    <localPath>Mods\escape_out</localPath>
+    <settings deleteDefs="True" deleteComments="False" deleteWhite="False" lineLengthMin="0" lineLengthMax="0" randomCase="False" />
+  </outputFSGame>
+  <outputFSGame targetConfiguration="FinalRelease">
+    <excludeFiles>(maps\\mp\\(?!gametypes\\).*)</excludeFiles>
+    <localPath>Mods\escape_out_release</localPath>
+    <settings deleteDefs="True" deleteComments="True" deleteWhite="True" lineLengthMin="60" lineLengthMax="70" randomCase="True" />
+  </outputFSGame>
+  <!-- ================================================================================================================================================================== -->
+  <!-- SETTINGS -->
+  <!-- All values can be modified from NPP -->
+  <!-- ================================================================================================================================================================== -->
+  <!-- Current target platfrom(Windows, Linux, LinuxNinja) -->
+  <targetPlatform>Windows</targetPlatform>
+  <!-- Current target configuration(Debug, Release, FinalRelease) -->
+  <targetConfiguration>Debug</targetConfiguration>
+  <!-- Sets <versionInt> by current date, uses formating "yyMMdd" -->
+  <isVersionIntFromDate>True</isVersionIntFromDate>
+  <!-- Current version of game -> value of compiler's constant "VersionInt" -->
+  <versionInt>0</versionInt>
+  <!-- Current version of game -> value of compiler's constant "VersionStr" -->
+  <!-- Possible values for replace: {DateTime:<formating>}, {VersionInt}
+       DateTime formatting: http://msdn.microsoft.com/en-us/library/8kb3ddd4%28v=vs.110%29.aspx -->
+  <versionStr>Ver. {DateTime:yy.MM.dd} PRE-ALPHA</versionStr>
+</settings>

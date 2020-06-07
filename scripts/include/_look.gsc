@@ -75,3 +75,34 @@ LOOK_GetPlayerLookVector()
 	angles = self GetPlayerAngles();
 	return AnglesToForward( angles );
 }
+
+LOOK_IsPlayerLookAtObject( ent, detectRadius, detectHeight, playerDistance, lookDisabled, traceDisabled )
+{
+	if (!IsDefined(lookDisabled)) lookDisabled = false;
+	if (!IsDefined(traceDisabled)) traceDisabled = false;
+
+	pos = self LOOK_GetPlayerViewPos();
+	vec = self LOOK_GetPlayerLookVector();
+	dist = Distance2D( pos, ent.origin );
+	
+	if( lookDisabled 
+		&& dist < playerDistance 
+		&& LOOK_DistanceZ( self LOOK_GetPlayerCenterPos(), ent.origin ) < detectHeight )
+		return true;
+	
+	point = pos + (vec * Distance( pos, ent.origin ));
+	trace = BulletTrace( pos, point, true, self );
+
+	if( trace["fraction"] == 1 || (IsDefined( trace["entity"] ) && trace["entity"] == ent) )
+		trace = true;
+	else 
+		trace = false;
+	
+	if (Distance2D( point, ent.origin ) < detectRadius
+		&& LOOK_DistanceZ( point, ent.origin ) < detectHeight 
+		&& ((!traceDisabled && trace) || traceDisabled)
+		&& ((IsDefined( playerDistance ) && Distance2D( pos, point ) < playerDistance) || !IsDefined( playerDistance )))
+		return true;
+	else
+		return false;
+}

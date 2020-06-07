@@ -236,10 +236,10 @@ MovableObjects_GrabObject( object )
 		
 		if( lastOrigin == origin )
 		{
-			if( MATH_DistanceNumber( angles[0], lastAngles[0] ) < IA_SMOOTH_ANGLE 
-				&& MATH_DistanceNumber( angles[1], lastAngles[1] ) < IA_SMOOTH_ANGLE 
-				&& MATH_DistanceNumber( angles[2], lastAngles[2] ) < IA_SMOOTH_ANGLE )
-				continue;
+			//if( MATH_DistanceNumber( angles[0], lastAngles[0] ) < IA_SMOOTH_ANGLE 
+			//	|| MATH_DistanceNumber( angles[1], lastAngles[1] ) < IA_SMOOTH_ANGLE 
+			//	|| MATH_DistanceNumber( angles[2], lastAngles[2] ) < IA_SMOOTH_ANGLE )
+			//	continue;
 		}
 		
 		lastOrigin = origin;

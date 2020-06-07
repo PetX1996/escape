@@ -478,8 +478,14 @@ watchWeaponReload()
 		scripts\_events::RunCallback( level, "reload_start", 1, self, curWeapon );
 		scripts\_events::RunCallback( self, "reload_start", 1, curWeapon );
 		
-		if( curWeapon == self.SpawnPlayer.secondaryWeapon && self.pers["team"] == "allies" )
-			self RestoreAmmo( curWeapon );
+		if( self.pers["team"] == "allies" )
+		{
+			if ( level.dvars["w_unlimitedSecondary"] && curWeapon == self.SpawnPlayer.secondaryWeapon )
+				self RestoreAmmo( curWeapon );
+				
+			if ( level.dvars["w_unlimitedPrimary"] && curWeapon == self.SpawnPlayer.primaryWeapon)
+				self RestoreAmmo( curWeapon );
+		}
 	}
 }
 

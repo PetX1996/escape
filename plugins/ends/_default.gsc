@@ -77,20 +77,20 @@ MonitorEndMapTrig( trig )
 		if(c == 1)
 		{
 			player iprintlnbold("First place!");
-			player [[level.giveScore]]( "score_endmap_first" );	
+			player [[level.giveScore]]( "score_endMapFirst" );	
 		}
 		else if(c == 2)
 		{
 			player iprintlnbold("Second place!");
-			player [[level.giveScore]]( "score_endmap_second" );	
+			player [[level.giveScore]]( "score_endMapSecond" );	
 		}
 		else if(c == 3)
 		{
 			player iprintlnbold("Third place!");
-			player [[level.giveScore]]( "endmap_third" );
+			player [[level.giveScore]]( "score_endMapThird" );
 		}	
 		else
-			player [[level.giveScore]]( "score_endmap_other" );
+			player [[level.giveScore]]( "score_endMapOther" );
 	
 		thread KillAllPlayersOnTime( trig, 5, "allies", player );
 			

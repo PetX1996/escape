@@ -48,7 +48,7 @@
 
 // F - force - automatické prepísanie u všetkých entit
 // D - default - ak nie je definované, použije sa táto hodnota
-DestructibleEntity(destructible_type, Fhealth, Dpersonality, Dteam, Ddelete, Dshotcount, Dthreshold, Dfirefx, Dfirefxsound, Dfxid, Dsound, FUNC_entityDamage, FUNC_entityDelete)
+DestructibleEntity(destructible_type, Fhealth, Fpersonality, Fteam, Ddelete, Dshotcount, Dthreshold, Dfirefx, Dfirefxsound, Dfxid, Dsound, FUNC_entityDamage, FUNC_entityDelete)
 {
 	if(!IsDefined(destructible_type))
 	{
@@ -64,8 +64,8 @@ DestructibleEntity(destructible_type, Fhealth, Dpersonality, Dteam, Ddelete, Dsh
 	
 	info = SpawnStruct();
 	info.script_health = Fhealth;
-	info.script_personality = Dpersonality;
-	info.script_team = Dteam;
+	info.script_personality = Fpersonality;
+	info.script_team = Fteam;
 	info.script_delete = Ddelete;
 	info.script_shotcount = Dshotcount;
 	info.script_threshold = Dthreshold;
@@ -84,8 +84,8 @@ DestructibleEntity(destructible_type, Fhealth, Dpersonality, Dteam, Ddelete, Dsh
 			
 			if(IsDefined(ent.firefx))
 				AddFXtoList(ent.firefx);
-			
-			if(IsDefined(ent.script_health))
+				
+			if(IsDefined(ent.script_health) || IsDefined(Fhealth))
 			{
 				if(IsDefined(Fhealth))
 					ent.script_health = Fhealth;
@@ -117,10 +117,11 @@ DestructibleEntity(destructible_type, Fhealth, Dpersonality, Dteam, Ddelete, Dsh
 DestructibleEntity_EntityDamage()
 {
 	info = level.DESOBJ[self.destructible_type];
-	if(IsDefined(self.EntityDamage.attacker) && IsPlayer(self.EntityDamage.attacker))
+	if ( IsDefined(self.EntityDamage.attacker) && IsPlayer(self.EntityDamage.attacker) )
 	{
 		pTeam = self.EntityDamage.attacker.pers["team"];
-		if((IsDefined(self.script_team) && pTeam != self.script_team) || (IsDefined(info.script_team) && pTeam != info.script_team))
+		entTeam = GetForcedVar(info.script_team, self.script_team, undefined);
+		if ( IsDefined(entTeam) && pTeam != entTeam )
 		{
 			self.EntityDamage.iDamage = 0;
 			return;
@@ -155,13 +156,13 @@ CheckFireFXAndSound(info, playOnChildren)
 
 CheckPersonality(info)
 {
-	personality = Int( GetOptionalVar(info.script_personality, self.script_personality, undefined) );
+	personality = GetForcedVar(info.script_personality, self.script_personality, undefined);
 	
 	if(!IsDefined(personality))
 		return;
 		
 	oldHealth = self.maxHealth;
-	team = GetOptionalVar(info.script_team, self.script_team, "allies");
+	team = GetForcedVar(info.script_team, self.script_team, "allies");
 	players = GetAllAlivePlayers(team);
 	
 	percentagePerPlayer = self.script_health * ( Int( personality ) / 100 );
@@ -224,6 +225,17 @@ GetOptionalVar(infoVar, entVar, defaultValue)
 		value = entVar;
 	if(!IsDefined(value))
 		value = defaultValue;
+		
+	return value;
+}
+
+GetForcedVar(infoVar, entVar, defaultValue)
+{
+	value = defaultValue;
+	if(IsDefined(entVar))
+		value = entVar;
+	if(IsDefined(infoVar))
+		value = infoVar;
 		
 	return value;
 }

@@ -17,6 +17,7 @@
 
 #include scripts\include\_main;
 #include scripts\include\_entity;
+#include scripts\include\_array;
 
 init()
 {
@@ -75,6 +76,26 @@ RegisterCheckpointTriggers()
 			targetEnts = GetEntArray( trigger.target, "targetname" );
 			trigger RegisterCheckpointTargetEnts( targetEnts );
 		}
+		else
+		{
+			foundSpawns = [];
+			
+			normalSpawns = GetEntArray( "escape_checkpoints_spawn", "classname" );
+			foreach (normalSpawn in normalSpawns)
+			{
+				if (isDefined (normalSpawn.script_index) && normalSpawn.script_index == trigger.script_index)
+					foundSpawns[foundSpawns.size] = normalSpawn;
+			}
+			
+			bigSpawns = GetEntArray( "escape_checkpoints_bigspawn", "classname" );
+			foreach (bigSpawn in bigSpawns)
+			{
+				if (isDefined (bigSpawn.script_index) && bigSpawn.script_index == trigger.script_index)
+					foundSpawns[foundSpawns.size] = bigSpawn;
+			}
+			
+			trigger RegisterCheckpointTargetEnts( foundSpawns );
+		}
 	}
 }
 
@@ -85,12 +106,15 @@ RegisterCheckpointTargetEnts( targetEnts )
 		switch( targetEnt.ClassName )
 		{
 			case "escape_checkpoints_spawn":
-				targetEnt PlaceSpawnPoint();
-				
-				if( IsDefined( targetEnt.script_fxid ) )
-					AddFXToList( targetEnt.script_fxid );
+				if (!ARRAY_Contains( self.Spawns, targetEnt) )
+				{
+					targetEnt PlaceSpawnPoint();
 					
-				self.Spawns[self.Spawns.size] = targetEnt;
+					if( IsDefined( targetEnt.script_fxid ) )
+						AddFXToList( targetEnt.script_fxid );
+						
+					self.Spawns[self.Spawns.size] = targetEnt;
+				}
 				break;
 			case "escape_checkpoints_bigspawn":
 				/#
@@ -100,13 +124,16 @@ RegisterCheckpointTargetEnts( targetEnts )
 					break;
 				}
 				#/
-			
-				targetEnt PlaceSpawnPoint();
 				
-				if( IsDefined( targetEnt.script_fxid ) )
-					AddFXToList( targetEnt.script_fxid );
+				if (!ARRAY_Contains( self.BigSpawns, targetEnt) )
+				{			
+					targetEnt PlaceSpawnPoint();
 					
-				self.BigSpawns[self.BigSpawns.size] = targetEnt;
+					if( IsDefined( targetEnt.script_fxid ) )
+						AddFXToList( targetEnt.script_fxid );
+						
+					self.BigSpawns[self.BigSpawns.size] = targetEnt;
+				}
 				break;
 			default:
 				MapError( "CHECKPOINT - Unknown linked entity at " + targetEnt.origin );
@@ -148,6 +175,7 @@ OnHumanTouchTrigger( p, player )
 	if( p > level.CHECKPOINT.LastHumansI )
 	{
 		level.CHECKPOINT.LastHumansI = p;
+		IPrintLn("level.CHECKPOINT.LastHumansI = " + p);
 		
 		foreach( client in level.players )
 			client thread scripts\clients\_hud::UpdateBottomProgressBar( ( (p+1) / (level.CHECKPOINT.Triggers.size+1) )*100 );
@@ -158,7 +186,9 @@ OnHumanTouchTrigger( p, player )
 	//zisti, èi je hráè v checkpointe prvý krát
 	if( self ENT_IsPlayerRegister( player ) )
 		return;
-		
+	
+	player.CHECKPOINT_LastHumansI = p;
+	
 	self ENT_RegisterPlayer( player );
 	
 	//odmeò hráèa za úsilie
@@ -174,13 +204,16 @@ OnMonsterTouchTrigger( p, player )
 	if( p > level.CHECKPOINT.LastMonstersI )
 	{
 		level.CHECKPOINT.LastMonstersI = p;
+		IPrintLn("level.CHECKPOINT.LastMonstersI = " + p);
 	
-		self thread KillPlayersBehindCheckpoint();
+		self thread KillPlayersBehindCheckpoint( p );
 		
 		// callback here?
 
 		if( level.CHECKPOINT.Triggers[p].Spawns.size || level.CHECKPOINT.Triggers[p].BigSpawns.size )
 		{
+			IPrintLn("Moving monsters spawngroup to: " + p);
+		
 			//zobraz všetkým monštrám aktualizáciu
 			foreach( monster in level.players )
 			{
@@ -254,7 +287,7 @@ DisableSpawnPoints( spawnPoints )
 }
 
 private ATTENTION_COUNT = 3;
-KillPlayersBehindCheckpoint()
+KillPlayersBehindCheckpoint( p )
 {
 	level notify( "KillPlayersBehindCheckpoint" );
 	level endon( "KillPlayersBehindCheckpoint" );
@@ -268,7 +301,8 @@ KillPlayersBehindCheckpoint()
 			if( player.pers["team"] != "allies" || !IsAlive( player ) )
 				continue;
 		
-			if( self ENT_IsPlayerRegister( player ) )
+			if( self ENT_IsPlayerRegister( player )
+				|| ( IsDefined(player.CHECKPOINT_LastHumansI) && player.CHECKPOINT_LastHumansI >= p ))
 				continue;
 				
 			if( c == 0 )

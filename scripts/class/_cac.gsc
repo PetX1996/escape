@@ -76,7 +76,7 @@ CAC_OnMenuResponse( menu, response )
 	
 	if( response == "CLASS_close" )
 	{
-		self CAC_Dispose();
+		self CAC_Close();
 		return;
 	}
 	

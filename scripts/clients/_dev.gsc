@@ -18,6 +18,7 @@
 #include scripts\include\_string;
 #include scripts\include\_array;
 #include scripts\include\_quickVoting;
+#include scripts\include\_look;
 
 init()
 {
@@ -116,10 +117,15 @@ SpawnPlayer()
 
 OnSpawnPlayer()
 {
+	if( level.dvars["flying"] || level.dvars["developer"] )
+		thread StartFlying();
+
 	if( !level.dvars["developer"] )
 		return;
 		
-	thread StartFlying();
+	thread HighlightMapEntities();
+	thread DebugMapEntities();
+		
 	thread GetFireVector();
 }
 
@@ -179,16 +185,37 @@ StartFlying()
 	}
 }
 
-DebugEntInfo()
+DebugMapEntities()
 {
-	ent = undefined;
-	for(i = 0; i < 2; i++)
-	{
-		if(i == 0)
-			ent = self;
-		else
-			ent = Spawn("script_origin", (1,1,1));
+	self endon("death");
+	self endon("disconnect");
+
+	lastDebug = GetTime();
 	
+	while (true)
+	{
+		ents = GetEntArray();
+		foreach (ent in ents)
+		{
+			if (ent == self)
+				continue;
+				
+			if (self AttackButtonPressed() 
+				&& (GetTime() - lastDebug) > 1000
+				&& self LOOK_IsPlayerLookAtObject(ent, 128, 128, 512, false, false))
+			{
+				lastDebug = GetTime();
+				DebugEntInfo(ent);
+				break;
+			}
+		}
+		
+		wait 0.05;
+	}
+}
+
+DebugEntInfo(ent)
+{
 		LogPrint("==============================================\n");
 		
 		DebugMember("accumulate", ent.accumulate);
@@ -567,13 +594,44 @@ DebugEntInfo()
 		DebugMember("weaponinfo", ent.weaponinfo);
 		
 		LogPrint("==============================================\n");
-	}
 }
 
 DebugMember(memberName, member)
 {
 	if(IsDefined(member))
+	{
 		LogPrint(memberName + "  " + member + "\n");
+		IPrintLn(memberName + "  " + member);
+	}
+}
+
+HighlightMapEntities()
+{
+	self endon("death");
+	self endon("disconnect");
+	
+	while( true )
+	{
+		i = 0;
+		ents = GetEntArray();
+		foreach( ent in ents )
+		{
+			i++;
+			
+			if( ent == self )
+				continue;
+		
+			if( DistanceSquared( ent.origin, self.origin ) > 1004857 )
+				continue;
+		
+			if( IsDefined( ent.radius ) && IsDefined( ent.height ) )
+				scripts\dev\_highlight::HighlightCylinder( ent.origin, ent.angles, ent.radius, ent.height, ent.className, ent.targetName, ( 0,1,0 ) );
+			else
+				scripts\dev\_highlight::HighlightPoint( ent.origin, ent.angles, ent.className, ent.targetName, ( 1,0,0 ) );
+		}
+		
+		wait 0.05;
+	}
 }
 
 Func(i)
@@ -756,8 +814,8 @@ GetFireVector()
 		}
 		
 		wait 0.5;
-	}
-	*/
+	}*/
+	
 	//scripts\_ai::AI( self.origin + (200,0,0), ( 0,0,0 ) );
 	
 	/*while( true )

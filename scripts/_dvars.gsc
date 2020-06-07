@@ -31,7 +31,7 @@ LoadAllDvars()
 	RegisterDvar( "logic", TYPE_BOOL, 1 );
 	RegisterDvar( "autospawn", TYPE_BOOL, 0 );
 	//RegisterDvar( "deathrun_support", TYPE_BOOL, 0 );
-	//RegisterDvar( "flying", TYPE_BOOL, 0 );
+	RegisterDvar( "flying", TYPE_BOOL, 0 );
 	
 	// ======  GAME LOGIC ====== //
 	// ========================= //
@@ -56,7 +56,7 @@ LoadAllDvars()
 	
 	// ======  CHECKPOINT ====== //
 	// ========================= //
-	RegisterDvar( "checkpoint_deadTime", TYPE_INT, 20 );
+	RegisterDvar( "checkpoint_deadTime", TYPE_INT, 30 );
 	
 	// ======  SURVIVAL  ====== //
 	// ======================== //
@@ -113,6 +113,11 @@ LoadAllDvars()
 	RegisterDvar( "p_knifeDamageAxisMin", TYPE_INT, 50 );
 	RegisterDvar( "p_knifeDamageAxisMax", TYPE_INT, 200 );
 
+	// ======  WEAPONS  ======= //
+	// ======================== //
+	RegisterDvar( "w_unlimitedPrimary", TYPE_BOOL, 1 );
+	RegisterDvar( "w_unlimitedSecondary", TYPE_BOOL, 1 );
+	
 	// ======  QUICK VOTING  ======= //
 	// ============================= //	
 	RegisterDvar( "qVote_time", TYPE_INT, 15 );

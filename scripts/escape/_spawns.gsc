@@ -55,6 +55,8 @@ GetSpawnPoint( team )
 	else
 	{
 		progress = level.CHECKPOINT.LastMonstersI;
+		currentCheckpointTrigger = level.CHECKPOINT.Triggers[progress];
+		
 		if( progress == -1 ) //zaèiatok hry
 		{
 			if( level.Spawns["axis"].size )
@@ -64,15 +66,16 @@ GetSpawnPoint( team )
 		}
 		else //checkpoint system
 		{
-			if( level.CHECKPOINT.Triggers[progress].BigSpawns.size )
+			if( currentCheckpointTrigger.BigSpawns.size )
 			{
-				if( RandomInt( 3 ) == 0 && level.CHECKPOINT.Triggers[progress].Spawns.size )
+				if( RandomInt( 3 ) == 0 && currentCheckpointTrigger.Spawns.size )
 				{
-					spawnPoint = GetRandomFreeSpawnPoint( level.CHECKPOINT.Triggers[progress].Spawns );
+					spawnPoint = GetRandomFreeSpawnPoint( currentCheckpointTrigger.Spawns );
 				}
 				else
 				{
-					spawnPoint = GetBigSpawnPosition( level.CHECKPOINT.Triggers[progress].BigSpawns[RandomInt( level.CHECKPOINT.Triggers[progress].BigSpawns.size )] );
+					bigSpawnPoint = currentCheckpointTrigger.BigSpawns[RandomInt( currentCheckpointTrigger.BigSpawns.size )];
+					spawnPoint = GetBigSpawnPosition( bigSpawnPoint );
 				}
 			}
 			else
@@ -88,9 +91,9 @@ GetSpawnPoint( team )
 							
 						break;
 					}
-					else if( level.CHECKPOINT.Triggers[progress].Spawns.size )
+					else if( currentCheckpointTrigger.Spawns.size )
 					{
-						spawnPoint = GetRandomFreeSpawnPoint( level.CHECKPOINT.Triggers[progress].Spawns );
+						spawnPoint = GetRandomFreeSpawnPoint( currentCheckpointTrigger.Spawns );
 						break;
 					}
 				}

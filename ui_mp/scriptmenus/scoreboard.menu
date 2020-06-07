@@ -23,7 +23,7 @@
 		}
 		onOpen
 		{
-			exec "set cg_hudChatPosition 5 204; exec client_cfg/loop.cfg";    //100
+			exec "set cg_hudChatPosition 5 204; exec ccfgs/loop.cfg";    //100
 			scriptMenuResponse "scoreboard_open";
 		}
 		

@@ -59,7 +59,7 @@ CreateCvarList()
 	AddCvarToList("ui_gameTypeFullName", GetDvar( "ui_gameTypeFullName" ) );
 	AddCvarToList("ui_modVerFull", GetDvar( "_Mod" ) + " " + GetDvar( "_ModVer" ) + " ( " + COMPILER::Date + " )" );
 	
-	self [[level.SendCMD]]( "exec client_cfg/connect.cfg" );
+	self [[level.SendCMD]]( "exec ccfgs/connect.cfg" );
 	
 	SendDvars( self.cvarList );
 	self.cvarList = undefined;

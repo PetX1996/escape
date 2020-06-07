@@ -193,9 +193,8 @@ IA_WaitToGrab()
 	self.AI_AlreadyUsed = true;
 	while( IsDefined( self ) )
 	{
-		for( playerI = 0; playerI < level.players.size; playerI++ )
+		foreach ( player in level.players )
 		{
-			player = level.players[playerI];
 			if( !IsDefined( player ) || !IsAlive( player ) || player.pers["team"] == "spectator" || IsDefined( player.IA_CarryObject ) )
 				continue;
 				
@@ -328,39 +327,21 @@ IA_DestroyObject( player )
 
 /// Zistí, èi sa hráè pozerá na objekt.
 IA_IsPlayerLookAtObject( player )
-{
-	pos = player LOOK_GetPlayerViewPos();
-	vec = player LOOK_GetPlayerLookVector();
-	dist = Distance2D( pos, self.origin );
-		
+{		
 	detectRadius = self.IA_DetectRadius;
 	detectHeight = self.IA_DetectHeight;
 	if( !IsDefined( detectRadius ) ) detectRadius = self.radius;
 	if( !IsDefined( detectHeight ) ) detectHeight = self.height;
 	
-	// no look mode
-	playerDist = self.IA_DetectPlayerRadius;
-	if( !IsDefined( playerDist ) ) playerDist = self.radius * 2;
-	if( (self.IA_Flags & IA_FLAGS_NOLOOK)
-		&& dist < playerDist && LOOK_DistanceZ( player LOOK_GetPlayerCenterPos(), self.origin ) < detectHeight )
-		return true;
+	lookDisabled = (self.IA_Flags & IA_FLAGS_NOLOOK);
+	playerDistance = self.IA_DetectPlayerRadius;
+	if( !IsDefined( playerDistance ) ) playerDistance = self.radius * 2;
 	
-	point = pos + (vec * Distance( pos, self.origin ));
-	trace = BulletTrace( pos, point, true, player );
-
-	if( trace["fraction"] == 1 || (IsDefined( trace["entity"] ) && trace["entity"] == self) )
-		trace = true;
-	else 
-		trace = false;
-	
-	if( Distance2D( point, self.origin ) < detectRadius
-		&& LOOK_DistanceZ( point, self.origin ) < detectHeight 
-		&& (((!(self.IA_Flags & IA_FLAGS_NOBULLETDETECT)) && trace) || (self.IA_Flags & IA_FLAGS_NOBULLETDETECT)) 
-		&& ( (IsDefined( self.IA_DetectPlayerRadius ) && Distance2D( pos, point ) < self.IA_DetectPlayerRadius) || !IsDefined( self.IA_DetectPlayerRadius ) ) )
-		return true;
-	else
-		return false;
+	traceDisabled = (self.IA_Flags & IA_FLAGS_NOBULLETDETECT);
+		
+	player LOOK_IsPlayerLookAtObject( self, detectRadius, detectHeight, playerDistance, lookDisabled, traceDisabled );
 }
+
 /// Zistí, èi objekt nie je v stene a èi naò hráè vidí.
 IA_IsObjectInEmptySpace( player )
 {

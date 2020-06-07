@@ -72,7 +72,7 @@ MonitorEndMapTrig( activator, bomb, aliveZone )
 			break;
 	}
 	
-	player [[level.giveScore]]( "score_endmap_first" );	
+	player [[level.giveScore]]( "score_endMapFirst" );	
 	winner = player;
 	
 	if( activator.classname == "trigger_use" || activator.classname == "trigger_use_touch" )
