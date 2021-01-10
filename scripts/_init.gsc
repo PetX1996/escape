@@ -633,7 +633,12 @@ finishPlayerDamageWrapper( eInflictor, eAttacker, iDamage, iDFlags, sMeansOfDeat
 			strength = (0.5-zDir)*2;
 			
 		//IPrintLnBold( "strength " + strength );
-		self REPEL_Kick( strength*(iDamage/600), (vDir[0], vDir[1], zDir) );
+		strength = strength*(iDamage/600);
+		if (strength > 1)
+			strength = 1;
+			
+		amount = REPEL_GetScaledAmount( strength );
+		self REPEL_Kick( amount, (vDir[0], vDir[1], zDir) );
 	}
 
 	
@@ -643,10 +648,17 @@ finishPlayerDamageWrapper( eInflictor, eAttacker, iDamage, iDFlags, sMeansOfDeat
 	scripts\_events::RunCallback( self, "onPlayerDamage", 1, eInflictor, eAttacker, iDamage, iDFlags, sMeansOfDeath, sWeapon, vPoint, vDir, sHitLoc, psOffsetTime );	
 	
 	if( IsDefined( eAttacker ) && IsPlayer( eAttacker ) && IsDefined( iDamage ) && IsDefined( sMeansOfDeath ) && IsDefined( sWeapon ) && IsDefined( sHitLoc ) )
-		IPrintLn( "DMG: self;^1"+self.name+"^7;eAttacker;^1"+eAttacker.name+"^7;iDamage;^1"+iDamage+"^7;sMeansOfDeath;^1"+sMeansOfDeath+"^7;sWeapon;^1"+sWeapon+"^7;sHitLoc;^1"+sHitLoc );
-		
+	{
+		self PrintDebug("DMG",
+			"atc", eAttacker.name,
+			"dmg", iDamage, 
+			"sMeansOfDeath", sMeansOfDeath,
+			"weap", sWeapon, 
+			"hitLoc", sHitLoc);
+	}	
+	
 	if( IsDefined( sMeansOfDeath ) )
-		IPrintLn( "sMeansOfDeath;^1"+sMeansOfDeath );
+		self PrintDebug( "sMeansOfDeath;^1"+sMeansOfDeath );
 		
 	// BLOOD
 	self ApplyBlood( sMeansOfDeath, vPoint );

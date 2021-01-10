@@ -241,12 +241,12 @@ updateRankAnnounceHUD( type )
 	if( type == 1 )
 	{
 		iprintln( &"RANK_PLAYER_WAS_PROMOTED", self, newRankName );
-		self thread scripts\clients\_hud::AddNewNotify("notify_level");
+		//self thread scripts\clients\_hud::AddNewNotify("notify_level");
 	}
 	else
 	{
 		iprintln( &"RANK_PLAYER_WAS_DEMOTED", self, newRankName );
-		self thread scripts\clients\_hud::AddNewNotify( "notify_leveldown" );
+		//self thread scripts\clients\_hud::AddNewNotify( "notify_leveldown" );
 	}
 }
 

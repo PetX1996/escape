@@ -102,7 +102,7 @@ SpawnPlayer( origin, angles, secondaryWeapon, primaryWeapon, offHand, secondaryO
 	// give weapons and other settings here!
 	self Spawn( self.SpawnPlayer.origin, self.SpawnPlayer.angles );
 	
-	self.SpawnPlayer.health = GetPlayerHealth( team, self.SpawnPlayer.health );
+	self.SpawnPlayer.health = self GetPlayerHealth( team, self.SpawnPlayer.health );
 	self.Health = self.SpawnPlayer.health;
 	self.MaxHealth = self.SpawnPlayer.health;
 	
@@ -233,7 +233,37 @@ GetPlayerHealth( team, classPercentage )
 {
 	min = level.dvars["p_healthMin_"+team];
 	max = level.dvars["p_healthMax_"+team];
-	return int( min+((max-min)*(classPercentage/100)) );
+	
+	currentPlayers = 0;
+	if (team == "allies")
+		currentPlayers = GetAllPlayers("allies").size;
+	else
+		currentPlayers = GetAllAlivePlayers( "allies" ).size;
+		
+	minPlayers = level.dvars["p_healthEnemyMin_"+team];
+	maxPlayers = level.dvars["p_healthEnemyMax_"+team];
+	
+	// calculate coeficient between 0-1
+	coef = (currentPlayers - minPlayers) / (maxPlayers - minPlayers);
+	if (coef < 0)
+		coef = 0;
+	else if (coef > 1)
+		coef = 1;
+		
+	range = max - min;
+	health = min + (range * coef);
+	
+	calculated = int( health*(classPercentage/100) );
+	
+	self PrintDebug("GetPlayerHealth",
+		"t", team,
+		"perc", classPercentage,
+		"p", currentPlayers, 
+		"min", min,
+		"max", max, 
+		"res", calculated);
+		
+	return calculated;
 }
 
 GetPlayerSpeed( team, classPercentage )

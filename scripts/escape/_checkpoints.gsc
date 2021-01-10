@@ -175,7 +175,8 @@ OnHumanTouchTrigger( p, player )
 	if( p > level.CHECKPOINT.LastHumansI )
 	{
 		level.CHECKPOINT.LastHumansI = p;
-		IPrintLn("level.CHECKPOINT.LastHumansI = " + p);
+		
+		PrintDebug( "level.CHECKPOINT.LastHumansI = " + p );
 		
 		foreach( client in level.players )
 			client thread scripts\clients\_hud::UpdateBottomProgressBar( ( (p+1) / (level.CHECKPOINT.Triggers.size+1) )*100 );
@@ -192,7 +193,8 @@ OnHumanTouchTrigger( p, player )
 	self ENT_RegisterPlayer( player );
 	
 	//odmeò hráèa za úsilie
-	player thread scripts\clients\_hud::AddNewNotify( "notify_checkpoint" );
+	IPrintLnBold("Humans proceeded to " + (p + 1) + "/" + level.CHECKPOINT.Triggers.size + " of the map");
+	//player thread scripts\clients\_hud::AddNewNotify( "notify_checkpoint" );
 	player thread [[level.giveScore]]( "score_checkpoint" );
 	
 	// callback here?
@@ -204,7 +206,8 @@ OnMonsterTouchTrigger( p, player )
 	if( p > level.CHECKPOINT.LastMonstersI )
 	{
 		level.CHECKPOINT.LastMonstersI = p;
-		IPrintLn("level.CHECKPOINT.LastMonstersI = " + p);
+		
+		PrintDebug( "level.CHECKPOINT.LastMonstersI = " + p );
 	
 		self thread KillPlayersBehindCheckpoint( p );
 		
@@ -212,13 +215,16 @@ OnMonsterTouchTrigger( p, player )
 
 		if( level.CHECKPOINT.Triggers[p].Spawns.size || level.CHECKPOINT.Triggers[p].BigSpawns.size )
 		{
-			IPrintLn("Moving monsters spawngroup to: " + p);
+			PrintDebug( "Moving monsters spawngroup to: " + p + "/" + level.CHECKPOINT.Triggers.size );
 		
 			//zobraz všetkým monštrám aktualizáciu
 			foreach( monster in level.players )
 			{
 				if( monster.pers["team"] == "axis" && IsAlive( monster ) )
-					monster thread scripts\clients\_hud::AddNewNotify( "notify_spawn" );
+				{
+					monster IPrintLnBold("Moving monsters spawngroup to " + (p + 1) + "/" + level.CHECKPOINT.Triggers.size + " of the map");
+					//monster thread scripts\clients\_hud::AddNewNotify( "notify_spawn" );
+				}
 			}
 			
 			thread UpdateSpawnsGroup( p );

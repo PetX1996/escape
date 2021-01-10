@@ -101,8 +101,17 @@ LoadAllDvars()
 	// ======================== //
 	RegisterDvar( "p_healthMin_allies", TYPE_INT, 100 );
 	RegisterDvar( "p_healthMax_allies", TYPE_INT, 300 );
-	RegisterDvar( "p_healthMin_axis", TYPE_INT, 1000 );
+	// Minimum health is set for this many HUMANS
+	RegisterDvar( "p_healthEnemyMin_allies", TYPE_INT, 20 );
+	// Maximum health is set for this many HUMANS
+	RegisterDvar( "p_healthEnemyMax_allies", TYPE_INT, 1 );
+	
+	RegisterDvar( "p_healthMin_axis", TYPE_INT, 500 );
 	RegisterDvar( "p_healthMax_axis", TYPE_INT, 5000 );
+	// Minimum health is set for this many alive HUMANS
+	RegisterDvar( "p_healthEnemyMin_axis", TYPE_INT, 1 );
+	// Maximum health is set for this many alive HUMANS
+	RegisterDvar( "p_healthEnemyMax_axis", TYPE_INT, 20 );
 	
 	RegisterDvar( "p_speedMin_allies", TYPE_INT, 80 );
 	RegisterDvar( "p_speedMax_allies", TYPE_INT, 110 );
@@ -113,6 +122,13 @@ LoadAllDvars()
 	RegisterDvar( "p_knifeDamageAxisMin", TYPE_INT, 50 );
 	RegisterDvar( "p_knifeDamageAxisMax", TYPE_INT, 200 );
 
+	RegisterDvar( "p_repelMin", TYPE_INT, 200 );
+	RegisterDvar( "p_repelMax", TYPE_INT, 500 );
+	// Minimum repel is set for this many alive HUMANS
+	RegisterDvar( "p_repelEnemyMin", TYPE_INT, 20 );
+	// Maximum repel is set for this many alive HUMANS
+	RegisterDvar( "p_repelEnemyMax", TYPE_INT, 1 );
+	
 	// ======  WEAPONS  ======= //
 	// ======================== //
 	RegisterDvar( "w_unlimitedPrimary", TYPE_BOOL, 1 );

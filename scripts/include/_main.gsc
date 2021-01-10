@@ -123,8 +123,38 @@ PrintError( file, function, message )
 	AssertMsg( message );
 }
 
-PrintDebug( text )
+PrintDebug( text, [a0], [p0], [a1], [p1], [a2], [p2], [a3], [p3], [a4], [p4], [a5], [p5], [a6], [p6], [a7], [p7], [a8], [p8], [a9], [p9] )
 {
+	if (IsDefined(a0))
+		text += "^7;" + a0 + ";^1" + p0;
+
+	if (IsDefined(a1))
+		text += "^7;" + a1 + ";^1" + p1;
+		
+	if (IsDefined(a2))
+		text += "^7;" + a2 + ";^1" + p2;	
+		
+	if (IsDefined(a3))
+		text += "^7;" + a3 + ";^1" + p3;
+		
+	if (IsDefined(a4))
+		text += "^7;" + a4 + ";^1" + p4;	
+		
+	if (IsDefined(a5))
+		text += "^7;" + a5 + ";^1" + p5;
+		
+	if (IsDefined(a6))
+		text += "^7;" + a6 + ";^1" + p6;	
+		
+	if (IsDefined(a7))
+		text += "^7;" + a7 + ";^1" + p7;
+		
+	if (IsDefined(a8))
+		text += "^7;" + a8 + ";^1" + p8;	
+		
+	if (IsDefined(a9))
+		text += "^7;" + a9 + ";^1" + p9;
+		
 	thread PrintDebugNow( text );
 }
 
