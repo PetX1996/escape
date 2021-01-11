@@ -785,7 +785,7 @@ watchC4()
 			c4 thread c4Activate();
 			c4 thread c4Damage();
 			c4 thread playC4Effects();
-			c4 thread c4DetectionTrigger( self.pers["team"] );
+			//c4 thread c4DetectionTrigger( self.pers["team"] );
 		}
 	}
 }
@@ -807,7 +807,7 @@ watchClaymores()
 			claymore thread c4Damage();
 			claymore thread claymoreDetonation();
 			claymore thread playClaymoreEffects();
-			claymore thread claymoreDetectionTrigger_wait( self.pers["team"] );
+			//claymore thread claymoreDetectionTrigger_wait( self.pers["team"] );
 			//claymore maps\mp\_entityheadicons::setEntityHeadIcon(self.pers["team"], (0,0,20));
 			
 			/#
@@ -1239,7 +1239,7 @@ detectIconWaiter( detectTeam )
 	self endon ( "end_detection" );
 	level endon ( "game_ended" );
 
-	while( !level.gameEnded )
+	while( !IsDefined( level.gameEnded ) )
 	{
 		self waittill( "trigger", player );
 		

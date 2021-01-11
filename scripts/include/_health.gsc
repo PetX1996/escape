@@ -83,7 +83,7 @@ HEALTH_CheckDamage()
 {
 	while( isDefined(self) )
 	{
-		PrintDebug("^1hp: "+self.health);
+		//PrintDebug("^1hp: "+self.health);
 		self waittill( "damage", iDamage, attacker, vDir, vPoint, sMeansOfDeath, modelName, tagName, partName, iDFlags );
 		PrintDebug("^1hp: "+self.health + " ammount: "+iDamage);
 		
@@ -132,7 +132,7 @@ HEALTH_CheckDamage()
 		if( self.health < 0 )
 			self.health = 0;
 		
-		iprintln("hp: "+self.health + " ammount: "+self.EntityDamage.iDamage);
+		//iprintln("hp: "+self.health + " ammount: "+self.EntityDamage.iDamage);
 		if( IsPlayer( attacker ) )
 		{
 			attacker scripts\clients\_damagefeedback::UpdateDamageFeedback();

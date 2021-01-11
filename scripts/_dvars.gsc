@@ -123,7 +123,7 @@ LoadAllDvars()
 	RegisterDvar( "p_knifeDamageAxisMax", TYPE_INT, 200 );
 
 	RegisterDvar( "p_repelMin", TYPE_INT, 200 );
-	RegisterDvar( "p_repelMax", TYPE_INT, 500 );
+	RegisterDvar( "p_repelMax", TYPE_INT, 1000 );
 	// Minimum repel is set for this many alive HUMANS
 	RegisterDvar( "p_repelEnemyMin", TYPE_INT, 20 );
 	// Maximum repel is set for this many alive HUMANS
@@ -140,7 +140,7 @@ LoadAllDvars()
 	RegisterDvar( "qVote_delay", TYPE_INT, 30 );
 }
 
-RegisterDvar( dvarName, dvarType, defaultValue, minValue, maxValue, ignorePrefix )
+RegisterDvar( dvarName, dvarType, defaultValue, [minValue], [maxValue], [ignorePrefix] )
 {
 	dvarFullName = undefined;
 	if( IsDefined( ignorePrefix ) && ignorePrefix && GetDvar( dvarName ) != "" )

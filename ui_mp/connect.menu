@@ -27,6 +27,14 @@
 		background		"$levelBriefing"
 		rect			FULLSCREEN_WIDE
 		
+		onOpen
+		{
+			// resets all dvars from a previous map
+			execNow "exec ccfgs/connect.cfg"
+		
+			//execnow "selectStringTableEntryInDvar mp/didyouknow2.csv 0 didyouknow2";
+		}
+		
 		// load progress bar background
 		/*itemDef 
 		{

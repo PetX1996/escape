@@ -164,7 +164,7 @@ MovableObjects_CleanStatus( object, playerGrab )
 		playerGrab notify( "MovableObjects_drop" );
 		
 		playerGrab.MovableObjects_grab = undefined;
-		playerGrab thread scripts\clients\_hud::SetLowerText();
+		playerGrab thread scripts\clients\_hud::ResetLower();
 	}
 	
 	foreach (player in level.players)
@@ -183,7 +183,7 @@ MovableObjects_CleanPlayerLooking( player )
 		player notify( "MovableObjects_looking" );
 			
 		player.MovableObjects_looking = undefined;
-		player thread scripts\clients\_hud::SetLowerText();
+		player thread scripts\clients\_hud::ResetLower();
 	}
 }
 

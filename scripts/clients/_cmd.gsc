@@ -31,6 +31,9 @@ ClientCMD( cmd )
 	//while( self UIActive() )
 		//wait RandomFloat( 0.01 );
 		
+	self CloseMenu();
+	self CloseInGameMenu();
+		
 	self SetClientDvar(game["menu_clientcmd"], cmd);
 	self OpenMenu(game["menu_clientcmd"]);
 	

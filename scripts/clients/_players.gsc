@@ -182,8 +182,7 @@ SpawnPlayer( origin, angles, secondaryWeapon, primaryWeapon, offHand, secondaryO
 	waittillframeend;
 	
 	self UpdateStatusIcon();
-	self scripts\clients\_hud::SetLowerText();
-	self scripts\clients\_hud::SetLowerTimer();
+	self scripts\clients\_hud::ResetLower();
 	self scripts\clients\_hud::UpdateTopProgressBar( 0 );
 	self scripts\clients\_hud::SetHealthBar( 100 );
 	self scripts\clients\_hud::UpdateBottomBar();

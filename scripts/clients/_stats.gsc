@@ -140,7 +140,7 @@ ResetStatsOnConnect()
 	
 	wait STAT_SPACE_TIME;
 	
-	self scripts\clients\_hud::SetLowerText();
+	self scripts\clients\_hud::ResetLower();
 }
 
 CheckClass()

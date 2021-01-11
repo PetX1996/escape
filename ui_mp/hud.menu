@@ -1,6 +1,6 @@
 // PC HUD - MP
 
-#include "ui/menudef.h"
+#include "ui_mp/macros.inc"
 
 #define TEAM_IS_MARINES		(localVarString( ui_team ) == "marines")
 #define TEAM_IS_OPFOR		(localVarString( ui_team ) == "opfor")
@@ -16,6 +16,12 @@
 #define	BOTTOM_RECT_Y 0
 
 #define MINIMAP_ORIGIN 2 11
+
+// LOWER
+// ui_hudLowerT
+// ui_hudLowerK
+// ui_hudLowerKT
+
 {
 	assetGlobalDef
 	{
@@ -528,44 +534,54 @@
 		// ======================================================================================== //
 		// ============================== LOWER MESSAGES HUD ====================================== //
 		// ======================================================================================== //
-		// hud_lower_vis = none/all/text/timer
-		#define TEAM	team( name ) != "TEAM_SPECTATOR"
 		
+		/*itemDef //lower progress bar - pozadie
+		{
+			style			WINDOW_STYLE_FILLED
+			rect			0 90 0 14 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			exp				rect X((-1) * (DvarInt(ui_hudLowerSize) / 2));
+			exp				rect W(DvarInt(ui_hudLowerSize));
+			backcolor		COLOR_BG_TRANSPARENT
+			visible			when(DvarString(ui_hudLowerSize) != "")
+			decoration
+		}*/
+		
+		/*#define LOWER_PROGRESS (1 - ((MilliSeconds() - DvarInt(ui_hudLowerTime)) / (DvarInt(ui_hudLowerBarTime) * 1000)))
+		itemDef //lower progress bar - line
+		{
+			style			WINDOW_STYLE_FILLED
+			rect			0 90 0 14 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			exp				rect X((-1) * (DvarInt(ui_hudLowerSize) / 2));
+			exp				rect W(LOWER_PROGRESS * DvarInt(ui_hudLowerSize));
+			backcolor		COLOR_FG_SELECTED
+			visible			when((DvarInt(ui_hudLowerVis) == 1 || DvarInt(ui_hudLowerVis) == 3) && (MilliSeconds() - DvarInt(ui_hudLowerTime)) <= (DvarInt(ui_hudLowerBarTime) * 1000))
+			decoration
+		}*/
+
 		itemDef //lower - text
 		{ 
 			rect			-320 80 640 20 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
-			textscale		TEXTSIZE_SMALL
+			textscale		FONTSCALE_14
 			textalign		ITEM_ALIGN_MIDDLE_CENTER
 			forecolor		1 1 1 1
-			exp				text( dvarstring( hud_lower_text ) ); 
-			visible			when( ( dvarint( hud_lower_vis ) == 2 || ( dvarint( hud_lower_vis ) == 1 && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) ) ) && TEAM )
+			exp				text(DvarString(ui_hudLowerT)); 
+			visible			when(DvarString("ui_hudLowerK") == "")
 			decoration
 		}
-		
-		itemDef //lower progress bar - pozadie
-		{
-			style			WINDOW_STYLE_SHADER
-			rect			0 100 0 8 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
-			exp				rect X( (-1) * (dvarint( hud_lower_bar_size )/2) );
-			exp				rect W( dvarint( hud_lower_bar_size ) );
-			background		"white"
-			forecolor		0 0 0 0.5
-			visible			when( ( dvarint( hud_lower_vis ) == 1 || dvarint( hud_lower_vis ) == 3 ) && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) && TEAM )
-			decoration
-		}
-		
-		#define LOWER_PROGRESS ( 1 - ( (milliseconds()-dvarint( lower_time )) / (dvarint( hud_lower_bar_time )*1000) ) )
-		itemDef //lower progress bar - line
-		{
-			style			WINDOW_STYLE_SHADER
-			rect			0 100 0 8 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
-			exp				rect X( (-1) * (dvarint( hud_lower_bar_size )/2) );
-			exp				rect W( LOWER_PROGRESS * dvarint( hud_lower_bar_size ) );
-			background		"white"
+
+		itemDef //lower - text
+		{ 
+			rect			-320 80 640 20 HORIZONTAL_ALIGN_CENTER VERTICAL_ALIGN_CENTER
+			textscale		FONTSCALE_14
+			textalign		ITEM_ALIGN_MIDDLE_CENTER
 			forecolor		1 1 1 1
-			visible			when( ( dvarint( hud_lower_vis ) == 1 || dvarint( hud_lower_vis ) == 3 ) && (milliseconds()-dvarint( lower_time )) <= (dvarint( hud_lower_bar_time )*1000) && TEAM )
+			exp				text(DvarString("ui_hudLowerKT") + " ^3" + KeyBinding(DvarString("ui_hudLowerK")) + "^7 " + DvarString("ui_hudLowerT")); 
+			visible			when(DvarString("ui_hudLowerK") != "")
 			decoration
 		}
+
+		// =========================================================================================================== //
+		
 
 		// ======================================================================================== //
 		// ================================== QUICK VOTING ======================================== //

@@ -17,11 +17,11 @@
 
 init()
 {
-	PreCacheShader( "notify_checkpoint" );
-	PreCacheShader( "notify_spawn" );
+	//PreCacheShader( "notify_checkpoint" );
+	//PreCacheShader( "notify_spawn" );
 	
-	PreCacheShader( "notify_level" );
-	PreCacheShader( "notify_leveldown" );
+	//PreCacheShader( "notify_level" );
+	//PreCacheShader( "notify_leveldown" );
 }
 
 ShowHud()
@@ -40,7 +40,7 @@ HideHud()
 /// volať v podobe: "player thread scripts\_hud::AddNewNotify( shader );"
 /// player - hráč, ktorému sa táto notifikácia zobrazí
 /// shader - názov materiálu, ktorý sa zobrazí, nutné Precache-ovať pri štarte hry
-AddNewNotify( shader )
+/*AddNewNotify( shader )
 {
 	self endon( "disconnect" );
 
@@ -78,7 +78,7 @@ CreateNotifyElem()
 	self.HUD_Notify.y = 0;
 	self.HUD_Notify.alpha = 1;
 	self.HUD_Notify.hidewheninmenu = true;
-}
+}*/
 // ================================================================================================================================================================================================= //	
 // MAIN BARS
 /// ProgressBar v hude hráča( úplne dole )
@@ -147,98 +147,199 @@ DestroyProgressBarOnTime( destroyTime )
 	self setclientdvar( "hud_progressbar_top", 0 );
 }
 
+// ========================================================= //	
+// LOWER
+
+private LowerBarColor = (0, 0, 0);
+private LowerBarAlpha = 0.5;
+
+private LowerProgressBarColor = (1, 1, 1);
+private LowerProgressBarAlpha = 1;
+
+private LowerHeight = 8;
+
+public ResetLower()
+{
+	self.HUD_sLowerText = undefined;
+	self.HUD_iLowerTimerEnd = undefined;
+	self SetClientDvars("ui_hudLowerT", "", 
+		"ui_hudLowerK", "");
+		
+	if (IsDefined(self.HUD_LowerProgressBar))
+	{
+		self.HUD_LowerBar.alpha = 0;
+		self.HUD_LowerProgressBar.alpha = 0;
+	}
+	
+	self notify("SetLowerText_DestroyAfterTime");
+}
+
+public IsLowerActive()
+{
+	return IsDefined(self.HUD_sLowerText)
+		|| (IsDefined(self.HUD_iLowerTimerEnd) && GetTime() < self.HUD_iLowerTimerEnd);
+}
+
+public SetLowerText(sText, [iTimeToDestroy], [bDontOverwrite])
+{
+	if (IsDefined(bDontOverwrite) 
+		&& bDontOverwrite
+		&& self IsLowerActive())
+		return;
+
+	self.HUD_sLowerText = sText;
+	self.HUD_iLowerTimerEnd = undefined;
+	self SetClientDvars("ui_hudLowerT", sText, 
+		"ui_hudLowerK", "");
+		
+	if (IsDefined(self.HUD_LowerProgressBar))
+	{
+		self.HUD_LowerBar.alpha = 0;
+		self.HUD_LowerProgressBar.alpha = 0;
+	}
+	
+	self notify("SetLowerText_DestroyAfterTime");
+	if (IsDefined(iTimeToDestroy))
+		self thread SetLowerText_DestroyAfterTime(iTimeToDestroy);
+}
+
+public SetLowerBindableText(sPreText, sKey, sPostText, [iTimeToDestroy], [bDontOverwrite])
+{
+	if (IsDefined(bDontOverwrite) 
+		&& bDontOverwrite
+		&& self IsLowerActive())
+		return;
+
+	self.HUD_sLowerText = sPreText + sKey + sPostText;
+	self.HUD_iLowerTimerEnd = undefined;
+	self SetClientDvars("ui_hudLowerKT", sPreText, 
+		"ui_hudLowerK", sKey, 
+		"ui_hudLowerT", sPostText);
+		
+	if (IsDefined(self.HUD_LowerProgressBar))
+	{
+		self.HUD_LowerBar.alpha = 0;
+		self.HUD_LowerProgressBar.alpha = 0;
+	}
+	
+	self notify("SetLowerText_DestroyAfterTime");
+	if (IsDefined(iTimeToDestroy))
+		self thread SetLowerText_DestroyAfterTime(iTimeToDestroy);
+}
+
+private SetLowerText_DestroyAfterTime(iTime)
+{
+	self endon("disconnect");
+	self endon("SetLowerText_DestroyAfterTime");
+	wait iTime;
+	
+	self ResetLower();
+}
+
+public SetLowerTimer(iTime, [iSize], [bDontOverwrite])
+{
+	self SetLowerTextAndTimer("", iTime, iSize, bDontOverwrite);
+}
+
+public SetLowerTextAndTimer(sText, iTime, [iSize], [bDontOverwrite])
+{
+	if (IsDefined(bDontOverwrite) 
+		&& bDontOverwrite
+		&& self IsLowerActive())
+		return;
+
+	if (!IsDefined(iSize)) iSize = 150;
+	
+	self.HUD_sLowerText = sText;
+	self.HUD_iLowerTimerEnd = GetTime() + (iTime * 1000);
+	
+	self SetClientDvars("ui_hudLowerT", sText, "ui_hudLowerK", "");
+	//self C_ICCMD::Command("setdvartotime ui_hudLowerTime");
+	
+	
+	if (!IsDefined(self.HUD_LowerProgressBar))
+		self InitLowerHud();
+
+	self.HUD_LowerBar.alpha = LowerBarAlpha;
+	self.HUD_LowerBar.x = (-0.5) * iSize;
+	self.HUD_LowerBar SetShader("white", iSize, LowerHeight);	
+	self.HUD_LowerProgressBar.alpha = LowerProgressBarAlpha;
+	self.HUD_LowerProgressBar.x = (-0.5) * iSize;
+	self.HUD_LowerProgressBar SetShader("white", iSize, LowerHeight);
+	self.HUD_LowerProgressBar ScaleOverTime(iTime, 0, LowerHeight);
+
+
+	self notify("SetLowerText_DestroyAfterTime");
+	self thread SetLowerText_DestroyAfterTime(iTime);
+}
+
+public SetLowerBindableTextAndTimer(sPreText, sKey, sPostText, iTime, [iSize], [bDontOverwrite])
+{
+	if (IsDefined(bDontOverwrite) 
+		&& bDontOverwrite
+		&& self IsLowerActive())
+		return;
+
+	if (!IsDefined(iSize)) iSize = 150;
+	
+	self.HUD_sLowerText = sPreText + sKey + sPostText;
+	self.HUD_iLowerTimerEnd = GetTime() + (iTime * 1000);
+	
+	self SetClientDvars("ui_hudLowerKT", sPreText, 
+		"ui_hudLowerK", sKey, 
+		"ui_hudLowerT", sPostText);
+	//self C_ICCMD::Command("setdvartotime ui_hudLowerTime");
+	
+	
+	if (!IsDefined(self.HUD_LowerProgressBar))
+		self InitLowerHud();
+
+	self.HUD_LowerBar.alpha = LowerBarAlpha;
+	self.HUD_LowerBar.x = (-0.5) * iSize;
+	self.HUD_LowerBar SetShader("white", iSize, LowerHeight);
+	self.HUD_LowerProgressBar.alpha = LowerProgressBarAlpha;
+	self.HUD_LowerProgressBar.x = (-0.5) * iSize;
+	self.HUD_LowerProgressBar SetShader("white", iSize, LowerHeight);
+	self.HUD_LowerProgressBar ScaleOverTime(iTime, 0, LowerHeight);
+
+
+	self notify("SetLowerText_DestroyAfterTime");
+	self thread SetLowerText_DestroyAfterTime(iTime);
+}
+
+private InitLowerHud()
+{
+	self.HUD_LowerBar = NewClientHudElem(self);
+	self.HUD_LowerBar.alignX = "left";
+	self.HUD_LowerBar.alignY = "top";
+	self.HUD_LowerBar.horzAlign = "center";
+	self.HUD_LowerBar.vertAlign = "middle";
+	self.HUD_LowerBar.x = 0;
+	self.HUD_LowerBar.y = 100;
+	self.HUD_LowerBar.sort = -2;
+	self.HUD_LowerBar.color = LowerBarColor;
+	self.HUD_LowerBar.alpha = 0;
+	//self.HUD_LowerBar.foreground = true;
+	self.HUD_LowerBar.hidewheninmenu = true;
+	self.HUD_LowerBar SetShader("white", 0, LowerHeight);
+
+	self.HUD_LowerProgressBar = NewClientHudElem(self);
+	self.HUD_LowerProgressBar.alignX = "left";
+	self.HUD_LowerProgressBar.alignY = "top";
+	self.HUD_LowerProgressBar.horzAlign = "center";
+	self.HUD_LowerProgressBar.vertAlign = "middle";
+	self.HUD_LowerProgressBar.x = 0;
+	self.HUD_LowerProgressBar.y = 100;
+	self.HUD_LowerProgressBar.sort = -1;
+	self.HUD_LowerProgressBar.color = LowerProgressBarColor;
+	self.HUD_LowerProgressBar.alpha = LowerProgressBarAlpha;
+	//self.HUD_LowerProgressBar.foreground = true;
+	self.HUD_LowerProgressBar.hidewheninmenu = true;
+	self.HUD_LowerProgressBar SetShader("white", 0, LowerHeight);
+}
 // ================================================================================================================================================================================================= //	
-// LOWER SECTION
-/// Lower text - stred obrazovky, text
-///
-/// volať v podobe: "player thread scripts\_hud::SetLowerText( text );"
-/// player 		- hráč, ktorému sa zobrazí lower text/timer
-/// text			- text, ktorý sa vypíše na obrazovke
-///
-/// pre odstranenie textu zavolajte funkciu bez parametrov
-SetLowerText( text, timeToDestroy, ignoreDifference )
-{
-	if( (!IsDefined( ignoreDifference ) || !ignoreDifference) && IsDefined( self.HUD_LowerText ) && IsDefined( text ) && text == self.HUD_LowerText )
-		return;
 
-	if( !IsDefined( text ) || text == "" )
-	{
-		self.HUD_LowerText = undefined;
-		self SetClientDvar( "hud_lower_vis", 0 );
-		self notify( "SetLowerText" );
-	}
-	else
-	{
-		self.HUD_LowerText = text;
-		self SetClientDvars( "hud_lower_text", text, "hud_lower_vis", 2 );
-		self notify( "SetLowerText" );
-		
-		if( IsDefined( timeToDestroy ) )
-			self thread SetLowerText_DestroyOnTime( timeToDestroy );
-	}
-}
-SetLowerText_DestroyOnTime( time )
-{
-	self endon( "SetLowerText" );
-	wait time;
-	
-	self.HUD_LowerText = undefined;
-	self SetClientDvar( "hud_lower_vis", 0 );	
-}
-GetLowerText()
-{
-	if( !IsDefined( self.HUD_LowerText ) )
-		return "";
-		
-	return self.HUD_LowerText;
-}
 
-/// Lower timer - stred obrazovky, grafické odpočítavadlo času
-///
-/// volať v podobe: "player thread scripts\_hud::SetLowerTimer( time, size );"
-/// player 		- hráč, ktorému sa zobrazí lower text/timer
-/// time			- čas, ktorý sa bude odpočítavať
-/// size			- veľkosť baru, default je 150
-SetLowerTimer( time, size )
-{
-	if( !isdefined( time ) )
-	{
-		self setclientdvar( "hud_lower_vis", 0 );
-		return;
-	}
-	
-	if( !isdefined( size ) )
-		size = 150;
-	
-	self.HUD_LowerTimerStart = GetTime();
-	self.HUD_LowerTimerEnd = GetTime() + (time*1000);
-	
-	self setclientdvars( "hud_lower_bar_size", size, "hud_lower_bar_time", time, "hud_lower_vis", 3 );
-	self [[level.SendCMD]]( "setdvartotime lower_time" );
-}
-
-/// Lower text+timer
-///
-/// volať v podobe: "player thread scripts\_hud::SetLowerTextAndTimer( text, time, size );"
-/// player	- hráč, ktorému sa zobrazí lower text/timer
-/// text		- text, ktorý sa vypíše na obrazovke
-/// time		- čas, ktorý sa bude odpočítavať
-/// size		- veľkosť baru, default je 150
-SetLowerTextAndTimer( text, time, size )
-{
-	if( !isdefined( text ) || !isdefined( time ) )
-		return;
-		
-	if( !isdefined( size ) )
-		size = 150;
-
-	self.HUD_LowerText = text;
-	self.HUD_LowerTimerStart = GetTime();
-	self.HUD_LowerTimerEnd = GetTime() + (time*1000);	
-	
-	self setclientdvars( "hud_lower_text", text, "hud_lower_bar_size", size, "hud_lower_bar_time", time, "hud_lower_vis", 1 );
-	self [[level.SendCMD]]( "setdvartotime lower_time" );	
-}
 // ================================================================================================================================================================================================= //	
 // HEALTH BAR
 /// HEALTH BAR
@@ -268,7 +369,7 @@ SetSpecialityBarPercentage( percentage )
 	if( percentage < 0 )
 		percentage = 0;
 		
-	self SetClientDvar( "hud_specBar_P", percentage, "hud_specBar_T", 1 );
+	self SetClientDvars( "hud_specBar_P", percentage, "hud_specBar_T", 1 );
 }
 ///
 /// Nastaví SPECIALITY bar na určitý čas

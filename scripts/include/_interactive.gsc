@@ -47,8 +47,10 @@
 #include scripts\include\_entity;
 #include scripts\include\_physic;
 
-private IA_PressGrab = "Press ^3USE ^7grab object.";
-private IA_PressDrop = "Press ^3FIRE ^7drop object.";
+private IA_PressGrabA = "Press";
+private IA_PressGrabB = "to grab the object.";
+private IA_PressDropA = "Press";
+private IA_PressDropB = "to drop the object.";
 
 #region Flags
 /// ignoruje kolízie
@@ -215,7 +217,7 @@ IA_WaitToGrab()
 					else
 					{
 						if( !(self.IA_Flags & IA_FLAGS_NOLOWERMESSAGES) )
-							player scripts\clients\_hud::SetLowerText( IA_PRESSGRAB, 0.06, true );
+							player scripts\clients\_hud::SetLowerBindableText( IA_PRESSGRABA, "+activate", IA_PRESSGRABB, 0.06 );
 					}
 				}
 			}
@@ -290,7 +292,7 @@ IA_WaitToDrop( player )
 				}
 			}
 			if( !(self.IA_Flags & IA_FLAGS_NOLOWERMESSAGES) )
-				player scripts\clients\_hud::SetLowerText( IA_PRESSDROP, 0.06, true );
+				player scripts\clients\_hud::SetLowerBindableText( IA_PRESSDROPA, "+attack", IA_PRESSDROPB, 0.06 );
 		}
 	
 		wait 0.05;
